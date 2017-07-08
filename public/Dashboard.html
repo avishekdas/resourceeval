@@ -1,0 +1,241 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Resource Evaluation & Dashboard</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+		<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/skel.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+		<script src="assets/js/main.js"></script>
+		<script> 
+		$(function(){
+		  $("#header").load("header.html"); 
+		  $("#sidebar").load("footer.html"); 
+		});
+		</script>
+	</head>
+	<body>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+			<!-- Main -->
+				<div id="main">
+					<div class="inner">
+
+						<!-- Header -->
+							<header id="header"></header>
+
+							<!-- Content -->
+								<section>
+									<p class="lead">What is Application name? 
+										<input id="applicationname" name="applicationname" type="text" class="form-control" placeholder="application name" aria-describedby="sizing-addon1" value="" />
+									</p>
+									<p></p>
+									<p>
+										<input id="search" name="Search" type="button" value="Search" class="button"/>
+									</p>
+									<p align="right"><a id="export" href="#" class="icon fa-file-excel-o"><span class="label">Export</span></a></p>
+									<p>
+									<table id="main_table" align="center" border="1" hidden></table>
+									</p>
+								</section>
+
+						</div>
+					</div>
+
+			<!-- Sidebar -->
+				<div id="sidebar"></div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script>
+				$(document).ready(function(){
+				   $( "#main_table" ).prop('hidden', false);
+				   document.getElementById("main_table").innerHTML = "";
+				   
+				   $.getJSON('/getincidents', function(result){
+						var th = '<th>Ticket #</th><th>Application Name</th><th>Issue</th><th>Impact</th><th>Status</th><th>Contact</th><th>Date</th>';
+						$('#main_table').append(th);
+						console.log('Hi there');
+						var tr;
+						$.each(result, function( key, data ) {
+							tr = $('<tr/>');
+							var url = 'CreateTicket.html?id=' + data._id;
+							var link = document.createElement("a");
+							var column = $('<td></td>')
+							link.href = url;
+							link.innerHTML = data.issueid;
+							column.append(link);
+							tr.append(column);
+							tr.append("<td>" + data.applicationname + "</td>");
+							tr.append("<td>" + data.issuedesc + "</td>");
+							tr.append("<td>" + data.impact + "</td>");
+							tr.append("<td>" + data.status + "</td>");
+							tr.append("<td>" + data.contact + "</td>");
+							tr.append("<td>" + data.date + "</td>");
+							$('#main_table').append(tr);
+						});
+					}).fail(function(jqXHR) {
+						if(jqXHR.status == 429){
+							console.log(jqXHR.status);
+							$( "#dialog-confirm" ).dialog( "open" );
+						} else if(jqXHR.status == 404){
+							alert('No Data Found');
+							console.log(jqXHR.status);
+						}
+						else {
+							alert('Something went wrong. Please check');
+							console.log(jqXHR.status);
+						}
+					});
+					
+					
+					$('#export').click(function() {
+						$.getJSON('/getincidents',
+						function(data){
+							JSONToCSVConvertor(data, "Ticket Tracker", true);
+							
+						}).fail(function(jqXHR) {
+							if(jqXHR.status == 429){
+								console.log(jqXHR.status);
+								$( "#dialog-confirm" ).dialog( "open" );
+							} else if(jqXHR.status == 404){
+								alert('No Data Found');
+								console.log(jqXHR.status);
+							}
+							else {
+								alert('Something went wrong. Please check');
+								console.log(jqXHR.status);
+							}
+						});
+						
+					});
+					
+					$('#search').click(function() {
+						$.getJSON('/searchbyappname?applicationname='+$('#applicationname').val(),
+							function(result){
+								$( "#main_table" ).prop('hidden', false);
+								document.getElementById("main_table").innerHTML = "";
+								var th = '<th>Ticket #</th><th>Application Name</th><th>Issue</th><th>Impact</th><th>Status</th><th>Contact</th><th>Date</th>';
+								$('#main_table').append(th);
+								
+								var tr;
+								for (var i = 0; i < result.rows.length; i++) {
+									tr = $('<tr/>');
+									var url = 'CreateTicket.html?id=' + result.rows[i].id;
+									var link = document.createElement("a");
+									var column = $('<td></td>')
+									link.href = url;
+									link.innerHTML = result.rows[i].fields.issueid;
+									column.append(link);
+									tr.append(column);
+									tr.append("<td>" + result.rows[i].fields.applicationname + "</td>");
+									tr.append("<td>" + result.rows[i].fields.issuedesc + "</td>");
+									tr.append("<td>" + result.rows[i].fields.impact + "</td>");
+									tr.append("<td>" + result.rows[i].fields.status + "</td>");
+									tr.append("<td>" + result.rows[i].fields.contact + "</td>");
+									tr.append("<td>" + result.rows[i].fields.date + "</td>");
+									$('#main_table').append(tr);
+								};
+							}).fail(function(jqXHR) {
+								if(jqXHR.status == 429){
+									console.log(jqXHR.status);
+									$( "#dialog-confirm" ).dialog( "open" );
+								} else if(jqXHR.status == 404){
+									alert('No Data Found');
+									console.log(jqXHR.status);
+								}
+								else {
+									alert('Something went wrong. Please check');
+									console.log(jqXHR.status);
+								}
+							});
+						
+					});
+					
+				});
+	
+				function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
+					//If JSONData is not an object then JSON.parse will parse the JSON string in an Object
+					var arrData = typeof JSONData != 'object' ? JSON.parse(JSONData) : JSONData;
+					
+					var CSV = '';    
+					//Set Report title in first row or line
+					
+					CSV += ReportTitle + '\r\n\n';
+
+					//This condition will generate the Label/Header
+					if (ShowLabel) {
+						var row = "";
+						
+						//This loop will extract the label from 1st index of on array
+						for (var index in arrData[0]) {
+							
+							//Now convert each value to string and comma-seprated
+							row += index + ',';
+						}
+
+						row = row.slice(0, -1);
+						
+						//append Label row with line break
+						CSV += row + '\r\n';
+					}
+					
+					//1st loop is to extract each row
+					for (var i = 0; i < arrData.length; i++) {
+						var row = "";
+						
+						//2nd loop will extract each column and convert it in string comma-seprated
+						for (var index in arrData[i]) {
+							row += '"' + arrData[i][index] + '",';
+						}
+
+						row.slice(0, row.length - 1);
+						
+						//add a line break after each row
+						CSV += row + '\r\n';
+					}
+
+					if (CSV == '') {        
+						alert("Invalid data");
+						return;
+					}   
+					
+					//Generate a file name
+					var fileName = "MyReport_";
+					//this will remove the blank-spaces from the title and replace it with an underscore
+					fileName += ReportTitle.replace(/ /g,"_");   
+					
+					//Initialize file format you want csv or xls
+					var uri = 'data:text/csv;charset=utf-8,' + escape(CSV);
+					
+					// Now the little tricky part.
+					// you can use either>> window.open(uri);
+					// but this will not work in some browsers
+					// or you will not get the correct file extension    
+					
+					//this trick will generate a temp <a /> tag
+					var link = document.createElement("a");    
+					link.href = uri;
+					
+					//set the visibility hidden so it will not effect on your web-layout
+					link.style = "visibility:hidden";
+					link.download = fileName + ".csv";
+					
+					//this part will append the anchor tag and remove it after automatic click
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+				}
+			</script>
+	</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Resource Evaluation & Dashboard</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+		<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/skel.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+		<script src="assets/js/main.js"></script>
+		<script> 
+		$(function(){
+		  $("#header").load("header.html"); 
+		  $("#sidebar").load("footer.html"); 
+		});
+		</script>
+	</head>
+	<body>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+			<!-- Main -->
+				<div id="main">
+					<div class="inner">
+
+						<!-- Header -->
+							<header id="header"></header>
+
+							<!-- Content -->
+								<section>
+									<div id="nameInput" class="input-group-lg center-block helloInput">
+									<form method="post" action="/saveincidents">
+										<input id="id" name="id" type="hidden" name="id" />
+										<p class="lead">What is Application name? 
+										<input id="applicationname" name="applicationname" type="text" class="form-control" placeholder="application name" aria-describedby="sizing-addon1" value="" />
+										</p>
+										<p></p>
+										<p class="lead">Please enter Server / Technical Details (If known)?
+										<input id="server" name="server" type="text" class="form-control" placeholder="server(s)" aria-describedby="sizing-addon1" value="" />
+										</p>
+										<p></p>
+										<p class="lead">Issue Description
+										<input id="issuedesc" name="issuedesc" type="text" class="form-control" placeholder="issue description" aria-describedby="sizing-addon1" value="" />
+										</p>
+										<p></p>
+										<p class="lead">What is the Impact?
+										<input id="impact" name="impact" type="text" class="form-control" placeholder="impact" aria-describedby="sizing-addon1" value="" />
+										</p>
+										<p></p>
+										<p class="lead">What is Status? 
+										<input id="status" name="status" type="text" class="form-control" placeholder="status" aria-describedby="sizing-addon1" value="" />
+										</p>
+										<p></p>
+										<p class="lead">What is the ETA?
+										<input id="eta" name="eta" type="text" class="form-control" placeholder="eta" aria-describedby="sizing-addon1" value="" />
+										</p>
+										<p></p>
+										<p class="lead">Who has raised it?
+										<input id="raisedby" name="raisedby" type="text" class="form-control" placeholder="person name who raised it" aria-describedby="sizing-addon1" value="" />
+										</p>
+										<p></p>
+										<p class="lead">Please share Contact number
+										<input id="contact" name="contact" type="text" class="form-control" placeholder="phone" aria-describedby="sizing-addon1" value="" />
+										</p>
+										<p></p>
+										<p class="lead">Please share Responsible Team Name?
+										<input id="respteam" name="respteam" type="text" class="form-control" placeholder="team name" aria-describedby="sizing-addon1" value="" />
+										</p>
+										<p></p>
+										<p class="lead">Person Assigned (if known)
+										<input id="personassigned" name="personassigned" type="text" class="form-control" placeholder="person assigned" aria-describedby="sizing-addon1" value="" />
+										</p>
+										<p></p>
+										<p class="lead">Comments
+										<input id="comments" name="comments" type="text" class="form-control" placeholder="comments" aria-describedby="sizing-addon1" value="" />
+										</p>
+										<p></p>
+										<p class="lead">Ref Issue Id
+										<input id="refissueid" name="refissueid" type="text" class="form-control" placeholder="reference issue id" aria-describedby="sizing-addon1" value="" />
+										</p>
+										<p></p>
+										<input id="add_button" name="Submit" type="Submit" value="SAVE" class="button"/>
+										
+									</form>
+									</div>
+									<p id="response" class="lead text-center"></p>
+								</section>
+
+						</div>
+					</div>
+
+			<!-- Sidebar -->
+				<div id="sidebar"></div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script>
+				$(document).ready(function(){
+					
+					var id = getUrlVars()["id"];
+					if(id != "") {
+						var url = 'getincident?id=' + id;
+						$.getJSON(url, function(result){
+							$("#id").val(result._id);
+							$("#applicationname").val(result.applicationname);
+							$("#server").val(result.server);
+							$("#issuedesc").val(result.issuedesc);
+							$("#impact").val(result.impact);
+							$("#status").val(result.status);
+							$("#eta").val(result.eta);
+							$("#raisedby").val(result.raisedby);
+							$("#contact").val(result.contact);
+							$("#respteam").val(result.respteam);
+							$("#personassigned").val(result.personassigned);
+							$("#comments").val(result.comments);
+							$("#refissueid").val(result.refissueid);
+						});
+						
+					}
+				});
+				
+				function getUrlVars()
+				{
+					var vars = [], hash;
+					var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+					for(var i = 0; i < hashes.length; i++)
+					{
+						hash = hashes[i].split('=');
+						vars.push(hash[0]);
+						vars[hash[0]] = hash[1];
+					}
+					return vars;
+				}
+			</script>
+	</body>
+</html>
