@@ -103,32 +103,12 @@ app.get('/deleteincident', function(req, res) {
 	}
 });
  
-app.post('/saveincidents', function(req, res) {
-  var applicationname = req.body.applicationname;
-  var server = req.body.server;
-  var issuedesc = req.body.issuedesc;
-  var impact = req.body.impact;
-  var status = req.body.status;
-  var eta = req.body.eta;
-  var raisedby = req.body.raisedby;
-  var contact = req.body.contact;
-  var respteam = req.body.respteam;
-  var personassigned = req.body.personassigned;
-  var comments = req.body.comments;
-  var refissueid = req.body.refissueid;
+app.post('/savedata', function(req, res) {
+  var obj = JSON.stringify(req.body);
+  var doc = { 'ibmid': obj.ibmid, 'resourcename' : obj.resourcename, 
+				'email': obj.email};
   
   var id = req.query._id || req.query.id || req.body._id || req.body.id || "";
-  console.log('id = '+id);
-  console.log('Fetched ' + applicationname);
-	
-  var doc = { 'applicationname': applicationname, 'server' : server, 
-				'issuedesc': issuedesc, 'impact' : impact, 
-				'status': status, 'eta' : eta, 
-				'raisedby': raisedby, 'contact' : contact, 
-				'respteam': respteam, 'personassigned' : personassigned, 
-				'comments': comments, 'date': new Date(),
-				'issueid': generateId(), 'refissueid': refissueid};
-
   if (id) {
 		doc._id = id;
 		update(req, res);
@@ -141,34 +121,20 @@ app.post('/saveincidents', function(req, res) {
 			if (key === "_id" || key === "id") continue;
 			doc[key] = req.query[key]
 		}
-  
+		
 		db.insert(doc, function(err, data) {
-		if (err) {
-			console.log({err:err});
-			res.setHeader('Content-Type', 'text/html');
-			return res.redirect('/failure.html');
-		}
-		//res.json({doc:doc,data:data});
-		res.setHeader('Content-Type', 'text/html');
-		return res.redirect('/success.html');
-
+			if (err) {
+				res.end('{\"msg\": \"ERROR\"}');
+			}
+			res.end('{\"msg\": \"OK\"}');
 		});
   }
 });
 
 function update(req, res) {
-	var applicationname = req.body.applicationname;
-	var server = req.body.server;
-	var issuedesc = req.body.issuedesc;
-	var impact = req.body.impact;
-	var status = req.body.status;
-	var eta = req.body.eta;
-	var raisedby = req.body.raisedby;
-	var contact = req.body.contact;
-	var respteam = req.body.respteam;
-	var personassigned = req.body.personassigned;
-	var comments = req.body.comments;
-	var refissueid = req.body.refissueid;
+	var doc = req.body['data'];
+	console.log("body ", doc);
+	
 	var id = req.query._id || req.query.id || req.body._id || req.body.id || "";
 	var isNew = false;
 	if (id != "") {
@@ -190,19 +156,7 @@ function update(req, res) {
 				old_doc = data;
 				doc = data;
 			}
-			doc.applicationname = applicationname;
-			doc.server = server;
-			doc.issuedesc = issuedesc;
-			doc.impact = impact;
-			doc.status = status;
-			doc.eta = eta;
-			doc.raisedby = raisedby;
-			doc.contact = contact;
-			doc.personassigned = personassigned;
-			doc.respteam = respteam;
-			doc.comments = comments;
-			doc.refissueid = refissueid;
-			doc.date = new Date();
+			
 			for (var key in req.body) {
 				if (key === "_id" || key === "id") continue;
 				doc[key] = req.body[key];

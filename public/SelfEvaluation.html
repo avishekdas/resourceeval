@@ -1,0 +1,171 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Resource Evaluation & Dashboard</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+		<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/skel.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+		<script src="assets/js/main.js"></script>
+		<script> 
+		$(function(){
+		  $("#header").load("header.html"); 
+		  $("#sidebar").load("footer.html"); 
+		});
+		</script>
+		<style>
+			.inlineinput div {
+				display: inline;
+			}
+		</style>
+	</head>
+	<body>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+			<!-- Main -->
+				<div id="main">
+					<div class="inner">
+
+						<!-- Header -->
+							<header id="header"></header>
+
+							<!-- Content -->
+								<section>
+									<div id="nameInput" class="input-group-lg center-block helloInput">
+									<form>
+										<input id="id" name="id" type="hidden" name="id" />
+										<p class="lead">What is IBM id? 
+										<input id="ibmid" name="ibmid" type="text" class="form-control" placeholder="IBM Id" aria-describedby="sizing-addon1" value="" />
+										</p>
+										<p></p>
+										<p class="lead">What is your Name?
+										<input id="resourcename" name="resourcename" type="text" class="form-control" placeholder="Name" aria-describedby="sizing-addon1" value="" />
+										</p>
+										<p></p>
+										<p class="lead">What is your email?
+										<input id="email" name="email" type="text" class="form-control" placeholder="Email Address" aria-describedby="sizing-addon1" value="" />
+										</p>
+										<p></p>
+										<span class="inlineinput" id="techcombo"></span>
+										</p>
+										<p></p>
+										<p class="lead">
+											<table>
+												<thead>
+													<tr>
+														<th>Select</th>
+														<th>Technology</th>
+														<th>Rating</th>
+													</tr>
+												</thead>
+												<tbody>
+													
+												</tbody>
+											</table>
+										<p></p>
+										<input id="save" name="save" type="button" value="SAVE" class="button"/>
+										
+									</form>
+									</div>
+									<p id="response" class="lead text-center"></p>
+								</section>
+
+						</div>
+					</div>
+
+			<!-- Sidebar -->
+				<div id="sidebar"></div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script>
+				$(document).ready(function(){
+					$.getJSON('/technologies.json', function(data){
+						var s = $('<select id="tech" class="form-control" style="display: inline;width: 40%;margin-right: 5%;"/>');
+						var tr;
+						for(var val in data) {
+							$('<option />', {value: val, text: data[val]}).appendTo(s);
+						}
+						s.appendTo('#techcombo');
+						
+						$.getJSON('/rating.json', function(data){
+							var s = $('<select id="rating" class="form-control" style="display: inline;width: 20%;margin-right: 5%;"/>');
+							var tr;
+							for(var val in data) {
+								$('<option />', {value: val, text: data[val]}).appendTo(s);
+							}
+							s.appendTo('#techcombo');
+							var addlink = $('<a id="add_button" href="#" class="icon fa-plus"><span style="display: inline;width: 20%;margin-left: 5%;" class="label"></span></a>');
+							addlink.appendTo('#techcombo');
+							var minulink = $('<a id="delete_button" href="#" class="icon fa-minus"><span style="display: inline;width: 20%;margin-left: 5%;" class="label"></span></a>');
+							minulink.appendTo('#techcombo');
+							$("#add_button").click(function(){
+								var name = $("#tech").val();
+								var email = $("#rating").val();
+								var markup = "<tr><td><input type='checkbox' style='opacity:1;' id='record' name='record' class='form-control' aria-describedby='sizing-addon1' /></td><td>" + name + "</td><td>" + email + "</td></tr>";
+								$("table tbody").append(markup);
+							});
+							
+							// Find and remove selected table rows
+							$("#delete_button").click(function(){
+								$("table tbody").find('input[name="record"]').each(function(){
+									if($(this).is(":checked")){
+										$(this).parents("tr").remove();
+									}
+								});
+							});
+						});
+					});
+					
+					$("#save").click(function(){
+						var data = {};
+						var techarr = [];
+						
+						var table = $("table tbody");
+						table.find('tr').each(function (i) {
+							var $tds = $(this).find('td');
+							var tech = {  
+								"technology" : $tds.eq(1).text(),                              
+								"rating" : $tds.eq(2).text()
+							 };
+							
+							techarr.push(tech);
+						});
+						
+						data.ibmid = $("#ibmid").val();
+						data.resourcename = $("#resourcename").val();
+						data.email = $("#email").val();
+						data.tech = techarr;
+						
+						$.ajax({
+							url: '/savedata',
+							// dataType: "jsonp",
+							data: JSON.stringify(data),
+							type: 'POST',
+							success: function (data) {
+								var ret = jQuery.parseJSON(data);
+								window.location.replace("success.html");
+							},
+							error: function (xhr, status, error) {
+								var ret = jQuery.parseJSON(data);
+								window.location.replace("failure.html");
+							},
+						});
+						
+						
+					});
+					
+				});
+			</script>
+	</body>
+</html>
