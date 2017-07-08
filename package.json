@@ -1,5 +1,5 @@
 {
-  "name": "apmmstatus-node",
+  "name": "resourceeval-node",
   "version": "0.0.1",
   "dependencies": {
     "async": "^1.5.2",
@@ -25,6 +25,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/IBM-Bluemix/apmm-status.git"
+    "url": "https://github.com/avishekdas/resourceeval"
   }
 }

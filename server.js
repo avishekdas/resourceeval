@@ -25,11 +25,11 @@ var url = require('url');
 
 // load the Cloudant library
 var cloudant = {
-	url : "https://593e00b0-15f0-448b-a896-4db1c9594e6f-bluemix:7bee821c0fa16611c47d5abb43a38bd3316d1f5819d6d15361cd8213c6e8345e@593e00b0-15f0-448b-a896-4db1c9594e6f-bluemix.cloudant.com/"
+	url : "https://489e7a61-7efa-4fd7-9eaf-b74213875cdb-bluemix:5295133feb3ed95bd58aa7325120a0ff10f1d10c8fef7d5d111e1495ae5109bd@489e7a61-7efa-4fd7-9eaf-b74213875cdb-bluemix.cloudant.com/"
 };
 
 var nano = require('nano')(cloudant.url);
-var db = nano.db.use('apmmincident');
+var db = nano.db.use('resourceevaldb');
 
 app.get('/searchbyappname', function(req, res) {
 	var query = url.parse(req.url,true).query;
