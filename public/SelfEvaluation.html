@@ -110,9 +110,9 @@
 							var minulink = $('<a id="delete_button" href="#" class="icon fa-minus"><span style="display: inline;width: 20%;margin-left: 5%;" class="label"></span></a>');
 							minulink.appendTo('#techcombo');
 							$("#add_button").click(function(){
-								var name = $("#tech").val();
-								var email = $("#rating").val();
-								var markup = "<tr><td><input type='checkbox' style='opacity:1;' id='record' name='record' class='form-control' aria-describedby='sizing-addon1' /></td><td>" + name + "</td><td>" + email + "</td></tr>";
+								var tech = $("#tech").val();
+								var rating = $("#rating").val();
+								var markup = "<tr><td><input type='checkbox' style='opacity:1;' id='record' name='record' class='form-control' aria-describedby='sizing-addon1' /></td><td>" + tech + "</td><td>" + rating + "</td></tr>";
 								$("table tbody").append(markup);
 							});
 							
@@ -162,8 +162,6 @@
 								window.location.replace("failure.html");
 							},
 						});
-						
-						
 					});
 					
 				});

@@ -44,11 +44,10 @@ app.get('/searchbyappname', function(req, res) {
 	});
 });
 
-app.get('/getincident', function(req, res) {
+app.get('/getresourcedlts', function(req, res) {
 	var query = url.parse(req.url,true).query;
 	var string = JSON.stringify(query);
     var objectValue = JSON.parse(string);
-	
 	db.get(objectValue['id'], function(err, data) {
 		if (!err) {
 			res.send(JSON.stringify(data));
@@ -105,7 +104,6 @@ app.get('/deleteincident', function(req, res) {
  
 app.post('/savedata', function(req, res) {
   var string = JSON.stringify(req.body);
-  
   var doc = JSON.parse(string);
   var id = req.query._id || req.query.id || req.body._id || req.body.id || "";
   if (id) {
@@ -123,6 +121,7 @@ app.post('/savedata', function(req, res) {
 		
 		db.insert(doc, function(err, data) {
 			if (err) {
+				console.log({err:err});
 				res.end('{\"msg\": \"ERROR\"}');
 			}
 			res.end('{\"msg\": \"OK\"}');
@@ -131,9 +130,6 @@ app.post('/savedata', function(req, res) {
 });
 
 function update(req, res) {
-	var doc = req.body['data'];
-	console.log("body ", doc);
-	
 	var id = req.query._id || req.query.id || req.body._id || req.body.id || "";
 	var isNew = false;
 	if (id != "") {
@@ -155,32 +151,25 @@ function update(req, res) {
 				old_doc = data;
 				doc = data;
 			}
-			
+						
 			for (var key in req.body) {
 				if (key === "_id" || key === "id") continue;
 				doc[key] = req.body[key];
-			}
-			for (var key in req.query) {
-				if (key === "_id" || key === "id") continue;
-				doc[key] = req.query[key];
 			}
 			
 			// use insert to modify existing doc by id, if there's any,
 			// otherwise it'll create new doc
 			db.insert(doc, function(err, data) {
 				if (err) {
-					res.json({err:err});
-					return;
+					console.log({err:err});
+					res.end('{\"msg\": \"ERROR\"}');
 				}
-	
-				res.setHeader('Content-Type', 'text/html');
-				return res.redirect('/success.html');
+				res.end('{\"msg\": \"OK\"}');
 			});
 		});
 	} else {
 		console.log({err:err});
-		res.setHeader('Content-Type', 'text/html');
-		return res.redirect('/failure.html');
+		res.end('{\"msg\": \"ERROR\"}');
 	}
 };
 

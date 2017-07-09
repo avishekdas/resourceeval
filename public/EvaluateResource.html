@@ -36,57 +36,46 @@
 							<!-- Content -->
 								<section>
 									<div id="nameInput" class="input-group-lg center-block helloInput">
-									<form method="post" action="/saveincidents">
+									<form>
 										<input id="id" name="id" type="hidden" name="id" />
-										<p class="lead">What is Application name? 
-										<input id="applicationname" name="applicationname" type="text" class="form-control" placeholder="application name" aria-describedby="sizing-addon1" value="" />
+										<p class="lead">What is IBM id? 
+										<select id="evaluatorno">
+										  <option value="1">Evaluator 1</option>
+										  <option value="2">Evaluator 2</option>
+										  <option value="3">Evaluator 3</option>
+										</select>
 										</p>
 										<p></p>
-										<p class="lead">Please enter Server / Technical Details (If known)?
-										<input id="server" name="server" type="text" class="form-control" placeholder="server(s)" aria-describedby="sizing-addon1" value="" />
+										<p class="lead">What is IBM id? 
+										<input id="ibmid" name="ibmid" type="text" class="form-control" placeholder="IBM Id" aria-describedby="sizing-addon1" value="" />
 										</p>
 										<p></p>
-										<p class="lead">Issue Description
-										<input id="issuedesc" name="issuedesc" type="text" class="form-control" placeholder="issue description" aria-describedby="sizing-addon1" value="" />
+										<p class="lead">What is your Name?
+										<input id="resourcename" name="resourcename" type="text" class="form-control" placeholder="Name" aria-describedby="sizing-addon1" value="" />
 										</p>
 										<p></p>
-										<p class="lead">What is the Impact?
-										<input id="impact" name="impact" type="text" class="form-control" placeholder="impact" aria-describedby="sizing-addon1" value="" />
+										<p class="lead">What is your email?
+										<input id="email" name="email" type="text" class="form-control" placeholder="Email Address" aria-describedby="sizing-addon1" value="" />
 										</p>
 										<p></p>
-										<p class="lead">What is Status? 
-										<input id="status" name="status" type="text" class="form-control" placeholder="status" aria-describedby="sizing-addon1" value="" />
+										<span class="inlineinput" id="techcombo"></span>
 										</p>
 										<p></p>
-										<p class="lead">What is the ETA?
-										<input id="eta" name="eta" type="text" class="form-control" placeholder="eta" aria-describedby="sizing-addon1" value="" />
-										</p>
+										<p class="lead">
+											<table>
+												<thead>
+													<tr>
+														<th>Technology</th>
+														<th>Self Rating</th>
+														<th>Evaluator Rating</th>
+													</tr>
+												</thead>
+												<tbody>
+													
+												</tbody>
+											</table>
 										<p></p>
-										<p class="lead">Who has raised it?
-										<input id="raisedby" name="raisedby" type="text" class="form-control" placeholder="person name who raised it" aria-describedby="sizing-addon1" value="" />
-										</p>
-										<p></p>
-										<p class="lead">Please share Contact number
-										<input id="contact" name="contact" type="text" class="form-control" placeholder="phone" aria-describedby="sizing-addon1" value="" />
-										</p>
-										<p></p>
-										<p class="lead">Please share Responsible Team Name?
-										<input id="respteam" name="respteam" type="text" class="form-control" placeholder="team name" aria-describedby="sizing-addon1" value="" />
-										</p>
-										<p></p>
-										<p class="lead">Person Assigned (if known)
-										<input id="personassigned" name="personassigned" type="text" class="form-control" placeholder="person assigned" aria-describedby="sizing-addon1" value="" />
-										</p>
-										<p></p>
-										<p class="lead">Comments
-										<input id="comments" name="comments" type="text" class="form-control" placeholder="comments" aria-describedby="sizing-addon1" value="" />
-										</p>
-										<p></p>
-										<p class="lead">Ref Issue Id
-										<input id="refissueid" name="refissueid" type="text" class="form-control" placeholder="reference issue id" aria-describedby="sizing-addon1" value="" />
-										</p>
-										<p></p>
-										<input id="add_button" name="Submit" type="Submit" value="SAVE" class="button"/>
+										<input id="save" name="save" type="button" value="SAVE" class="button"/>
 										
 									</form>
 									</div>
@@ -104,26 +93,83 @@
 		<!-- Scripts -->
 			<script>
 				$(document).ready(function(){
-					
+					var old_jsonObj = {};
 					var id = getUrlVars()["id"];
 					if(id != "") {
-						var url = 'getincident?id=' + id;
-						$.getJSON(url, function(result){
-							$("#id").val(result._id);
-							$("#applicationname").val(result.applicationname);
-							$("#server").val(result.server);
-							$("#issuedesc").val(result.issuedesc);
-							$("#impact").val(result.impact);
-							$("#status").val(result.status);
-							$("#eta").val(result.eta);
-							$("#raisedby").val(result.raisedby);
-							$("#contact").val(result.contact);
-							$("#respteam").val(result.respteam);
-							$("#personassigned").val(result.personassigned);
-							$("#comments").val(result.comments);
-							$("#refissueid").val(result.refissueid);
+						$.getJSON('/rating.json', function(data){
+							var optionstr = '<select id="rating" class="form-control" style="display: inline;width: 20%;margin-right: 5%;">';
+							for(var val in data) {
+								optionstr += '<option value="' + val + '">' + data[val] + '</option>';
+							}
+							optionstr += '</select>';
+						
+							var url = 'getresourcedlts?id=' + id;
+							$.getJSON(url, function(result){
+								old_jsonObj = result;
+								$("#id").val(result._id);
+								$( "#ibmid" ).val(result.ibmid);
+								$( "#resourcename" ).val(result.resourcename);
+								$( "#email" ).val(result.email);
+								
+								$.each(result.technologies, function(key, val) {
+								  var me = this;
+								  var tech = me.technology;
+								  var selfrating = me.selfrating;
+								  var row = "<tr><td>" + tech + "</td><td>" + selfrating + "</td><td>";
+								  row += optionstr;
+								  row += "</td></tr>";
+								  $("table tbody").append(row);
+								});
+								
+							});
 						});
 						
+						$("#save").click(function(){
+							var jsonObj = {};
+							var techarr = [];
+							var table = $("table tbody");
+							table.find('tr').each(function (i) {
+								var $tds = $(this).find('td');
+								var tech = {};
+								tech.technology = $tds.eq(0).text();                             
+								tech.selfrating = $tds.eq(1).text();
+								if($("#evaluatorno").val() == '1') {
+									tech.eval1rating = $tds.eq(2).find("select").val();
+									tech.eval2rating = old_jsonObj.technologies[i].eval2rating;
+									tech.eval3rating = old_jsonObj.technologies[i].eval3rating;
+								} else if($("#evaluatorno").val() == '2') {
+									tech.eval2rating = $tds.eq(2).find("select").val();
+									tech.eval1rating = old_jsonObj.technologies[i].eval1rating;
+									tech.eval3rating = old_jsonObj.technologies[i].eval3rating;
+								} else if($("#evaluatorno").val() == '3') {
+									tech.eval3rating = $tds.eq(2).find("select").val();
+									tech.eval1rating = old_jsonObj.technologies[i].eval1rating;
+									tech.eval2rating = old_jsonObj.technologies[i].eval2rating;
+								}
+								techarr.push(tech);
+							});
+							
+							jsonObj._id = $("#id").val();
+							jsonObj.ibmid = $("#ibmid").val();
+							jsonObj.resourcename = $("#resourcename").val();
+							jsonObj.email = $("#email").val();
+							jsonObj.technologies = techarr;
+							
+							$.ajax({
+								url: '/savedata',
+								// dataType: "jsonp",
+								data: jsonObj,
+								type: 'POST',
+								success: function (data) {
+									var ret = jQuery.parseJSON(data);
+									window.location.replace("success.html");
+								},
+								error: function (xhr, status, error) {
+									var ret = jQuery.parseJSON(data);
+									window.location.replace("failure.html");
+								},
+							});
+						});
 					}
 				});
 				
