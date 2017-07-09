@@ -128,29 +128,30 @@
 					});
 					
 					$("#save").click(function(){
-						var data = {};
+						var jsonObj = {};
 						var techarr = [];
 						
 						var table = $("table tbody");
 						table.find('tr').each(function (i) {
 							var $tds = $(this).find('td');
-							var tech = {  
-								"technology" : $tds.eq(1).text(),                              
-								"rating" : $tds.eq(2).text()
-							 };
-							
+							var tech = {};
+							tech.technology = $tds.eq(1).text();                             
+							tech.selfrating = $tds.eq(2).text();
+							tech.eval1rating = "";
+							tech.eval2rating = "";
+							tech.eval3rating = "";
 							techarr.push(tech);
 						});
 						
-						data.ibmid = $("#ibmid").val();
-						data.resourcename = $("#resourcename").val();
-						data.email = $("#email").val();
-						data.tech = techarr;
+						jsonObj.ibmid = $("#ibmid").val();
+						jsonObj.resourcename = $("#resourcename").val();
+						jsonObj.email = $("#email").val();
+						jsonObj.technologies = techarr;
 						
 						$.ajax({
 							url: '/savedata',
 							// dataType: "jsonp",
-							data: JSON.stringify(data),
+							data: jsonObj,
 							type: 'POST',
 							success: function (data) {
 								var ret = jQuery.parseJSON(data);

@@ -104,10 +104,9 @@ app.get('/deleteincident', function(req, res) {
 });
  
 app.post('/savedata', function(req, res) {
-  var obj = JSON.stringify(req.body);
-  var doc = { 'ibmid': obj.ibmid, 'resourcename' : obj.resourcename, 
-				'email': obj.email};
+  var string = JSON.stringify(req.body);
   
+  var doc = JSON.parse(string);
   var id = req.query._id || req.query.id || req.body._id || req.body.id || "";
   if (id) {
 		doc._id = id;
