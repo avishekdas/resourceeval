@@ -31,12 +31,13 @@ var cloudant = {
 var nano = require('nano')(cloudant.url);
 var db = nano.db.use('resourceevaldb');
 
-app.get('/searchbyappname', function(req, res) {
+app.get('/searchbyresourcename', function(req, res) {
 	var query = url.parse(req.url,true).query;
 	var string = JSON.stringify(query);
     var objectValue = JSON.parse(string);
-	var searchappname = 'applicationname:'+objectValue['applicationname'];
-	db.search('searchByAppName', 'searchByAppName_index', {q:searchappname}, function(err, result) {
+	console.log(objectValue['resourcename']);
+	var searchresourcename = 'resourcename:'+objectValue['resourcename'];
+	db.search('searchbyresource', 'resourceview_index', {q:searchresourcename}, function(err, result) {
 	  if (err) {
 		res.json({err:err});
 	  }
@@ -57,14 +58,14 @@ app.get('/getresourcedlts', function(req, res) {
 	});
 });
 
-app.get('/getincidents', function(req, res) {
-	db.view('application_name', 'application_name_index', function(err, body) {
+app.get('/getresources', function(req, res) {
+	db.view('resourceview', 'resourceview_index', function(err, body) {
 	  if (!err) {
-		var issues = [];
+		var resources = [];
 		  body.rows.forEach(function(doc) {
-			issues.push(doc.value);           
+			resources.push(doc.value);           
 		  });
-		  res.send(JSON.stringify(issues));
+		  res.send(JSON.stringify(resources));
 		} else {
 		  res.json({err:err});
 		}

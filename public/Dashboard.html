@@ -35,8 +35,8 @@
 
 							<!-- Content -->
 								<section>
-									<p class="lead">What is Application name? 
-										<input id="applicationname" name="applicationname" type="text" class="form-control" placeholder="application name" aria-describedby="sizing-addon1" value="" />
+									<p class="lead">What is Resource name?
+										<input id="resourcename" name="resourcename" type="text" class="form-control" placeholder="resource name" aria-describedby="sizing-addon1" value="" />
 									</p>
 									<p></p>
 									<p>
@@ -62,26 +62,21 @@
 				   $( "#main_table" ).prop('hidden', false);
 				   document.getElementById("main_table").innerHTML = "";
 				   
-				   $.getJSON('/getincidents', function(result){
-						var th = '<th>Ticket #</th><th>Application Name</th><th>Issue</th><th>Impact</th><th>Status</th><th>Contact</th><th>Date</th>';
+				   $.getJSON('/getresources', function(result){
+						var th = '<th>Resource Name</th><th>IBM id</th><th>Email</th>';
 						$('#main_table').append(th);
-						console.log('Hi there');
 						var tr;
 						$.each(result, function( key, data ) {
 							tr = $('<tr/>');
-							var url = 'CreateTicket.html?id=' + data._id;
+							var url = 'EvaluateResource.html?id=' + data._id;
 							var link = document.createElement("a");
 							var column = $('<td></td>')
 							link.href = url;
-							link.innerHTML = data.issueid;
+							link.innerHTML = data.resourcename;
 							column.append(link);
 							tr.append(column);
-							tr.append("<td>" + data.applicationname + "</td>");
-							tr.append("<td>" + data.issuedesc + "</td>");
-							tr.append("<td>" + data.impact + "</td>");
-							tr.append("<td>" + data.status + "</td>");
-							tr.append("<td>" + data.contact + "</td>");
-							tr.append("<td>" + data.date + "</td>");
+							tr.append("<td>" + data.ibmid + "</td>");
+							tr.append("<td>" + data.email + "</td>");
 							$('#main_table').append(tr);
 						});
 					}).fail(function(jqXHR) {
@@ -100,10 +95,8 @@
 					
 					
 					$('#export').click(function() {
-						$.getJSON('/getincidents',
-						function(data){
-							JSONToCSVConvertor(data, "Ticket Tracker", true);
-							
+						$.getJSON('/getincidents', function(data){
+							JSONToCSVConvertor(data, "Resource Dump", true);
 						}).fail(function(jqXHR) {
 							if(jqXHR.status == 429){
 								console.log(jqXHR.status);
@@ -121,29 +114,25 @@
 					});
 					
 					$('#search').click(function() {
-						$.getJSON('/searchbyappname?applicationname='+$('#applicationname').val(),
+						$.getJSON('/searchbyresourcename?resourcename='+$('#resourcename').val(),
 							function(result){
 								$( "#main_table" ).prop('hidden', false);
 								document.getElementById("main_table").innerHTML = "";
-								var th = '<th>Ticket #</th><th>Application Name</th><th>Issue</th><th>Impact</th><th>Status</th><th>Contact</th><th>Date</th>';
+								var th = '<th>Resource Name</th><th>IBM id</th><th>Email</th>';
 								$('#main_table').append(th);
 								
 								var tr;
 								for (var i = 0; i < result.rows.length; i++) {
 									tr = $('<tr/>');
-									var url = 'CreateTicket.html?id=' + result.rows[i].id;
+									var url = 'EvaluateResource.html?id=' + result.rows[i].id;
 									var link = document.createElement("a");
 									var column = $('<td></td>')
 									link.href = url;
-									link.innerHTML = result.rows[i].fields.issueid;
+									link.innerHTML = result.rows[i].fields.resourcename;
 									column.append(link);
 									tr.append(column);
-									tr.append("<td>" + result.rows[i].fields.applicationname + "</td>");
-									tr.append("<td>" + result.rows[i].fields.issuedesc + "</td>");
-									tr.append("<td>" + result.rows[i].fields.impact + "</td>");
-									tr.append("<td>" + result.rows[i].fields.status + "</td>");
-									tr.append("<td>" + result.rows[i].fields.contact + "</td>");
-									tr.append("<td>" + result.rows[i].fields.date + "</td>");
+									tr.append("<td>" + result.rows[i].fields.ibmid + "</td>");
+									tr.append("<td>" + result.rows[i].fields.email + "</td>");
 									$('#main_table').append(tr);
 								};
 							}).fail(function(jqXHR) {
