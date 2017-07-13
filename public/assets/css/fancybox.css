@@ -1,0 +1,13 @@
+#hidden-content-b {
+  /* Custom styling */
+  max-width: 550px;
+  border-radius: 4px;
+
+  /* Custom transition - slide from top*/
+  transform: translateY(-50px);
+  transition: all .33s;
+}
+
+.fancybox-slide--current #hidden-content-b {
+  transform: translateY(0);
+}

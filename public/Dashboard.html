@@ -6,8 +6,12 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
 		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="assets/css/fancybox.css" />
 		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
 		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.0.47/jquery.fancybox.min.css" />
+		<script src="//code.jquery.com/jquery-3.2.1.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.0.47/jquery.fancybox.min.js"></script>
 		<!-- Scripts -->
 		<script src="assets/js/jquery.min.js"></script>
 		<script src="assets/js/skel.min.js"></script>
@@ -63,7 +67,7 @@
 				   document.getElementById("main_table").innerHTML = "";
 				   
 				   $.getJSON('/getresources', function(result){
-						var th = '<th>Resource Name</th><th>IBM id</th><th>Email</th>';
+						var th = '<th>Resource Name</th><th>IBM id</th><th>Email</th><th>Technologies</th>';
 						$('#main_table').append(th);
 						var tr;
 						$.each(result, function( key, data ) {
@@ -77,6 +81,26 @@
 							tr.append(column);
 							tr.append("<td>" + data.ibmid + "</td>");
 							tr.append("<td>" + data.email + "</td>");
+							
+							var popup = '<a data-fancybox data-src="#hidden-content-a" href="javascript:;" class="button">Technologies</a>';
+							popup += '<div style="display: none;" id="hidden-content-a"><table><th>Self Rating</th><th>Eval1 Rating</th><th>Eval2 Rating</th><th>Eval3 Rating</th>';
+							
+							$.each(data.technologies, function( key, tech ) {
+								var row = '';
+								row += '<tr>';
+								
+								row += "<td>" + tech.technology + "</td>";
+								row += "<td>" + tech.selfrating + "</td>";
+								row += "<td>" + tech.eval1rating + "</td>";
+								row += "<td>" + tech.eval2rating + "</td>";
+								row += "<td>" + tech.eval3rating + "</td>";
+								
+								row += '<tr>';
+								popup += row;
+							});
+							popup += '</table></div>';
+							tr.append(popup);
+							
 							$('#main_table').append(tr);
 						});
 					}).fail(function(jqXHR) {
