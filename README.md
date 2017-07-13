@@ -5,3 +5,4 @@ Technologies used:
 	- Cloudant DB
 	- IBM Bluemix
 	
+DEMO URL - https://resourceevaluation.mybluemix.net/
