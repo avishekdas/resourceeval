@@ -166,7 +166,7 @@
 						$.getJSON('/searchbyresourcename?resourcename='+$('#resourcename').val(), function(result){
 								$( "#main_table" ).prop('hidden', false);
 								document.getElementById("main_table").innerHTML = "";
-								var th = '<th>Resource Name</th><th>IBM id</th><th>Email</th><th>Technologies</th>';
+								var th = '<th>Resource Name</th><th>Employee Number</th><th>IBM Email id</th><th>Technologies</th>';
 								$('#main_table').append(th);
 								var tr;
 								$.each(result.rows, function( key, obj ) {

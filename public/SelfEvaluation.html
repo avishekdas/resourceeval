@@ -93,21 +93,28 @@
 		<!-- Scripts -->
 			<script>
 				$(document).ready(function(){
-					$.getJSON('/skill.json', function(data){
-						var s = $('<select id="tech" class="form-control" style="display: inline;width: 40%;margin-right: 5%;"/>');
-						var tr;
-						for(var val in data) {
-							$('<option />', {value: val, text: data[val]}).appendTo(s);
-						}
-						s.appendTo('#techcombo');
-						
-						$.getJSON('/rating.json', function(data){
-							var s = $('<select id="rating" class="form-control" style="display: inline;width: 20%;margin-right: 5%;"/>');
-							var tr;
-							for(var val in data) {
-								$('<option />', {value: val, text: data[val]}).appendTo(s);
+					$.getJSON('/getskills', function(data){
+						$.each(data.rows, function( key, obj ) {
+							var s = $('<select id="tech" class="form-control" style="display: inline;width: 40%;margin-right: 5%;"/>');
+							var skillDoc = obj.doc;
+							var skills = skillDoc.datavalue;
+							for(var val in skills) {
+								$('<option />', {value: skills[val], text: skills[val]}).appendTo(s);
 							}
 							s.appendTo('#techcombo');
+						});
+						
+						$.getJSON('/getRatings', function(data){
+							$.each(data.rows, function( key, obj ) {
+								var s = $('<select id="rating" class="form-control" style="display: inline;width: 20%;margin-right: 5%;"/>');
+								var ratingDoc = obj.doc;
+								var ratings = ratingDoc.datavalue;
+								for(var val in ratings) {
+									$('<option />', {value: ratings[val], text: ratings[val]}).appendTo(s);
+								}
+								s.appendTo('#techcombo');
+							});
+							
 							var addlink = $('<a id="add_button" href="#" class="icon fa-plus"><span style="display: inline;width: 20%;margin-left: 5%;" class="label"></span></a>');
 							addlink.appendTo('#techcombo');
 							var minulink = $('<a id="delete_button" href="#" class="icon fa-minus"><span style="display: inline;width: 20%;margin-left: 5%;" class="label"></span></a>');
