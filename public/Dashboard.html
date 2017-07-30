@@ -21,7 +21,7 @@
 		<script> 
 		$(function(){
 		  $("#header").load("header.html"); 
-		  $("#sidebar").load("footer.html"); 
+		  $("#inner1").load("footer.html"); 
 		});
 		</script>
 	</head>
@@ -56,7 +56,9 @@
 					</div>
 
 			<!-- Sidebar -->
-				<div id="sidebar"></div>
+				<div id="sidebar">
+					<div id="inner1" class="inner"></div>
+				</div>
 
 			</div>
 
@@ -67,7 +69,7 @@
 				   document.getElementById("main_table").innerHTML = "";
 				   
 				   $.getJSON('/getresources', function(result){
-						var th = '<th>Resource Name</th><th>IBM id</th><th>Email</th><th>Technologies</th>';
+						var th = '<th>Resource Name</th><th>Employee Number</th><th>IBM Email id</th><th>Technologies</th>';
 						$('#main_table').append(th);
 						var tr;
 						$.each(result, function( key, data ) {
@@ -82,8 +84,8 @@
 							tr.append("<td>" + data.ibmid + "</td>");
 							tr.append("<td>" + data.email + "</td>");
 							
-							var popup = '<a data-fancybox data-src="#hidden-content-a" href="javascript:;" class="button">Technologies</a>';
-							popup += '<div style="display: none;" id="hidden-content-a"><table><th>Self Rating</th><th>Eval1 Rating</th><th>Eval2 Rating</th><th>Eval3 Rating</th>';
+							var popup = '<a data-fancybox data-src="#hidden-content-' + key + '" href="javascript:;" class="button">Technologies</a>';
+							popup += '<div style="display: none;" id="hidden-content-' + key + '"><table><th>Technologies</th><th>Self Rating</th><th>Eval1 Rating</th><th>Eval2 Rating</th><th>Eval3 Rating</th>';
 							
 							$.each(data.technologies, function( key, tech ) {
 								var row = '';
@@ -138,27 +140,47 @@
 					});
 					
 					$('#search').click(function() {
-						$.getJSON('/searchbyresourcename?resourcename='+$('#resourcename').val(),
-							function(result){
+						$.getJSON('/searchbyresourcename?resourcename='+$('#resourcename').val(), function(result){
 								$( "#main_table" ).prop('hidden', false);
 								document.getElementById("main_table").innerHTML = "";
-								var th = '<th>Resource Name</th><th>IBM id</th><th>Email</th>';
+								var th = '<th>Resource Name</th><th>IBM id</th><th>Email</th><th>Technologies</th>';
 								$('#main_table').append(th);
-								
 								var tr;
-								for (var i = 0; i < result.rows.length; i++) {
+								$.each(result.rows, function( key, obj ) {
+									var data = obj.doc;
 									tr = $('<tr/>');
-									var url = 'EvaluateResource.html?id=' + result.rows[i].id;
+									var url = 'EvaluateResource.html?id=' + data._id;
 									var link = document.createElement("a");
 									var column = $('<td></td>')
 									link.href = url;
-									link.innerHTML = result.rows[i].fields.resourcename;
+									link.innerHTML = data.resourcename;
 									column.append(link);
 									tr.append(column);
-									tr.append("<td>" + result.rows[i].fields.ibmid + "</td>");
-									tr.append("<td>" + result.rows[i].fields.email + "</td>");
+									tr.append("<td>" + data.ibmid + "</td>");
+									tr.append("<td>" + data.email + "</td>");
+									
+									var popup = '<a data-fancybox data-src="#hidden-content-' + key + '" href="javascript:;" class="button">Technologies</a>';
+									popup += '<div style="display: none;" id="hidden-content-' + key + '"><table><th>Technologies</th><th>Self Rating</th><th>Eval1 Rating</th><th>Eval2 Rating</th><th>Eval3 Rating</th>';
+									
+									$.each(data.technologies, function( key, tech ) {
+										var row = '';
+										row += '<tr>';
+										
+										row += "<td>" + tech.technology + "</td>";
+										row += "<td>" + tech.selfrating + "</td>";
+										row += "<td>" + tech.eval1rating + "</td>";
+										row += "<td>" + tech.eval2rating + "</td>";
+										row += "<td>" + tech.eval3rating + "</td>";
+										
+										row += '<tr>';
+										popup += row;
+									});
+									popup += '</table></div>';
+									tr.append(popup);
+									
 									$('#main_table').append(tr);
-								};
+									
+								});
 							}).fail(function(jqXHR) {
 								if(jqXHR.status == 429){
 									console.log(jqXHR.status);

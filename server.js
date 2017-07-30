@@ -35,9 +35,8 @@ app.get('/searchbyresourcename', function(req, res) {
 	var query = url.parse(req.url,true).query;
 	var string = JSON.stringify(query);
     var objectValue = JSON.parse(string);
-	console.log(objectValue['resourcename']);
-	var searchresourcename = 'resourcename:'+objectValue['resourcename'];
-	db.search('searchbyresource', 'resourceview_index', {q:searchresourcename}, function(err, result) {
+	var searchresourcename = 'resourcename:'+objectValue['resourcename']+'*';
+	db.search('searchbyresource', 'resourceview_index', {include_docs:true, q:searchresourcename}, function(err, result) {
 	  if (err) {
 		res.json({err:err});
 	  }

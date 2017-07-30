@@ -17,7 +17,7 @@
 		<script> 
 		$(function(){
 		  $("#header").load("header.html"); 
-		  $("#sidebar").load("footer.html"); 
+		  $("#inner1").load("footer.html"); 
 		});
 		</script>
 		<style>
@@ -43,7 +43,7 @@
 									<div id="nameInput" class="input-group-lg center-block helloInput">
 									<form>
 										<input id="id" name="id" type="hidden" name="id" />
-										<p class="lead">What is IBM id? 
+										<p class="lead">What is Employee Number? 
 										<input id="ibmid" name="ibmid" type="text" class="form-control" placeholder="IBM Id" aria-describedby="sizing-addon1" value="" />
 										</p>
 										<p></p>
@@ -51,10 +51,11 @@
 										<input id="resourcename" name="resourcename" type="text" class="form-control" placeholder="Name" aria-describedby="sizing-addon1" value="" />
 										</p>
 										<p></p>
-										<p class="lead">What is your email?
+										<p class="lead">What is your IBM email id?
 										<input id="email" name="email" type="text" class="form-control" placeholder="Email Address" aria-describedby="sizing-addon1" value="" />
 										</p>
 										<p></p>
+										<p class="lead">Choose Technology<br />
 										<span class="inlineinput" id="techcombo"></span>
 										</p>
 										<p></p>
@@ -83,14 +84,16 @@
 					</div>
 
 			<!-- Sidebar -->
-				<div id="sidebar"></div>
+				<div id="sidebar">
+					<div id="inner1" class="inner"></div>
+				</div>
 
 			</div>
 
 		<!-- Scripts -->
 			<script>
 				$(document).ready(function(){
-					$.getJSON('/technologies.json', function(data){
+					$.getJSON('/skill.json', function(data){
 						var s = $('<select id="tech" class="form-control" style="display: inline;width: 40%;margin-right: 5%;"/>');
 						var tr;
 						for(var val in data) {
