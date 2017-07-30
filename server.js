@@ -30,6 +30,7 @@ var cloudant = {
 
 var nano = require('nano')(cloudant.url);
 var db = nano.db.use('resourceevaldb');
+var admindb = nano.db.use('resourceadmindb');
 
 app.get('/searchbyresourcename', function(req, res) {
 	var query = url.parse(req.url,true).query;
@@ -69,6 +70,63 @@ app.get('/getresources', function(req, res) {
 		  res.json({err:err});
 		}
 	  });
+});
+
+app.get('/getskills', function(req, res) {
+	var query = 'datatype:skills';
+	admindb.search('attributes', 'by_name_value', {include_docs:true, q:query}, function(err, result) {
+	  if (err) {
+		res.json({err:err});
+	  }
+	  res.send(JSON.stringify(result));
+	});
+});
+
+app.get('/getRatings', function(req, res) {
+	var query = 'datatype:rating';
+	admindb.search('attributes', 'by_name_value', {include_docs:true, q:query}, function(err, result) {
+	  if (err) {
+		res.json({err:err});
+	  }
+	  res.send(JSON.stringify(result));
+	});
+});
+
+app.get('/getEvaluators', function(req, res) {
+	var query = 'datatype:evaluator';
+	admindb.search('attributes', 'by_name_value', {include_docs:true, q:query}, function(err, result) {
+	  if (err) {
+		res.json({err:err});
+	  }
+	  res.send(JSON.stringify(result));
+	});
+});
+
+app.post('/saveadmin', function(req, res) {
+  var string = JSON.stringify(req.body);
+  var doc = JSON.parse(string);
+  var id = req.query._id || req.query.id || req.body._id || req.body.id || "";
+  if (id) {
+		doc._id = id;
+		updateAdmin(req, res);
+  } else {
+		for (var key in req.body) {
+			if (key === "_id" || key === "id") continue;
+			doc[key] = req.body[key]
+		}
+		for (var key in req.query) {
+			if (key === "_id" || key === "id") continue;
+			doc[key] = req.query[key]
+		}
+		
+		admindb.insert(doc, function(err, data) {
+			if (err) {
+				console.log({err:err});
+				res.end('{\"msg\": \"ERROR\"}');
+			}
+			res.end('{\"msg\": \"OK\"}');
+		});
+  }
 });
 
 app.get('/deleteincident', function(req, res) {
@@ -160,6 +218,50 @@ function update(req, res) {
 			// use insert to modify existing doc by id, if there's any,
 			// otherwise it'll create new doc
 			db.insert(doc, function(err, data) {
+				if (err) {
+					console.log({err:err});
+					res.end('{\"msg\": \"ERROR\"}');
+				}
+				res.end('{\"msg\": \"OK\"}');
+			});
+		});
+	} else {
+		console.log({err:err});
+		res.end('{\"msg\": \"ERROR\"}');
+	}
+};
+
+function updateAdmin(req, res) {
+	var id = req.query._id || req.query.id || req.body._id || req.body.id || "";
+	var isNew = false;
+	if (id != "") {
+		admindb.get(id, function(err, data) {
+			if (err) {
+				if (err.statusCode == 404) {
+					isNew == true;
+				} else {
+					res.json({err:err});
+					return;
+				}
+			}
+
+			var old_doc = {};
+			var doc = {};
+			if (isNew) {
+				doc._id = id;
+			} else {
+				old_doc = data;
+				doc = data;
+			}
+						
+			for (var key in req.body) {
+				if (key === "_id" || key === "id") continue;
+				doc[key] = req.body[key];
+			}
+			
+			// use insert to modify existing doc by id, if there's any,
+			// otherwise it'll create new doc
+			admindb.insert(doc, function(err, data) {
 				if (err) {
 					console.log({err:err});
 					res.end('{\"msg\": \"ERROR\"}');

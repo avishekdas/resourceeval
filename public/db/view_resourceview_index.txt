@@ -1,0 +1,3 @@
+function(doc) {
+ emit(doc.ibmid, {_id : doc._id, ibmid : doc.ibmid, resourcename : doc.resourcename,  email : doc.email, technologies : doc.technologies});
+}

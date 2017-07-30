@@ -1,0 +1,11 @@
+function(doc){
+  if (doc.ibmid){
+    index("ibmid", doc.ibmid, {"store": true});
+  }
+  if (doc.resourcename){
+    index("resourcename", doc.resourcename, {"store": true});
+  }
+  if (doc.email){
+    index("email", doc.email, {"store": true});
+  }
+}

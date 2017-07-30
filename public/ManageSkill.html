@@ -1,0 +1,145 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Resource Evaluation & Dashboard</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<link href="assets/css/jquery-ui.css" rel="Stylesheet"></link>
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+		<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/jquery-ui.js" ></script>
+		<script src="assets/js/skel.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+		<script src="assets/js/main.js"></script>
+		<script> 
+		$(function(){
+		  $("#header").load("header.html"); 
+		  $("#inner1").load("footer.html"); 
+		});
+		</script>
+	</head>
+	<body>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+			<!-- Main -->
+				<div id="main">
+					<div class="inner">
+
+						<!-- Header -->
+							<header id="header"></header>
+
+							<!-- Content -->
+								<section>
+									<div id="nameInput" class="input-group-lg center-block helloInput">
+									<form>
+										<input id="id" name="id" type="hidden" name="id" />
+										<p class="lead">Skill Name
+										<input id="skillname" name="skillname" type="text" class="form-control" placeholder="Skill Name" aria-describedby="sizing-addon1" value="" />
+										</p>
+										<p></p>
+										<input id="addskill" name="addskill" type="button" value="ADD" class="button"/>
+										<input id="delskill" name="delskill" type="button" value="DELETE" class="button"/>
+									</form>
+									</div>
+									<p id="response" class="lead text-center"></p>
+								</section>
+
+						</div>
+					</div>
+
+			<!-- Sidebar -->
+				<div id="sidebar">
+					<div id="inner1" class="inner"></div>
+				</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script>
+				$(document).ready(function(){
+					var skillDoc;
+					var skills;
+					
+					$.getJSON('/getskills', function(data){
+						$.each(data.rows, function( key, obj ) {
+							skillDoc = obj.doc;
+							skills = skillDoc.datavalue;
+							$( "#skillname" ).autocomplete({
+							  source:skills,
+							  autoFocus: true ,
+							});
+						});
+					});
+					
+					$("#addskill").click(function(){
+						var existFlag=false;
+						var newSkill = $("#skillname").val();
+						if(newSkill != '' && jQuery.inArray(newSkill, skills) !== -1) {
+							existFlag = true;
+						}
+						if (!existFlag) {
+							skills.push(newSkill);
+							skillDoc.datavalue = skills;
+							
+							$.ajax({
+								url: '/saveadmin',
+								// dataType: "jsonp",
+								data: skillDoc,
+								type: 'POST',
+								success: function (data) {
+									var ret = jQuery.parseJSON(data);
+									window.location.replace("success.html");
+								},
+								error: function (xhr, status, error) {
+									var ret = jQuery.parseJSON(data);
+									window.location.replace("failure.html");
+								},
+							});
+						} else {
+							alert('Skill Already exists');
+						}
+					});
+					
+					$("#delskill").click(function(){
+						var existFlag=false;
+						var oldSkill = $("#skillname").val();
+						if(oldSkill != '' && jQuery.inArray(oldSkill, skills) !== -1) {
+							existFlag = true;
+						}
+						if (existFlag) {
+							var index = skills.indexOf(oldSkill);
+							if (index > -1) {
+								skills.splice(index, 1);
+							}
+							skillDoc.datavalue = skills;
+							
+							$.ajax({
+								url: '/saveadmin',
+								// dataType: "jsonp",
+								data: skillDoc,
+								type: 'POST',
+								success: function (data) {
+									var ret = jQuery.parseJSON(data);
+									window.location.replace("success.html");
+								},
+								error: function (xhr, status, error) {
+									var ret = jQuery.parseJSON(data);
+									window.location.replace("failure.html");
+								},
+							});
+						} else {
+							alert('Skill not registered');
+						}
+					});
+					
+				});
+			</script>
+	</body>
+</html>

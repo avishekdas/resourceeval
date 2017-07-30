@@ -1,0 +1,145 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Resource Evaluation & Dashboard</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<link href="assets/css/jquery-ui.css" rel="Stylesheet"></link>
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+		<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/jquery-ui.js" ></script>
+		<script src="assets/js/skel.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+		<script src="assets/js/main.js"></script>
+		<script> 
+		$(function(){
+		  $("#header").load("header.html"); 
+		  $("#inner1").load("footer.html"); 
+		});
+		</script>
+	</head>
+	<body>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+			<!-- Main -->
+				<div id="main">
+					<div class="inner">
+
+						<!-- Header -->
+							<header id="header"></header>
+
+							<!-- Content -->
+								<section>
+									<div id="nameInput" class="input-group-lg center-block helloInput">
+									<form>
+										<input id="id" name="id" type="hidden" name="id" />
+										<p class="lead">Evaluator
+										<input id="evaluatorname" name="evaluatorname" type="text" class="form-control" placeholder="Evaluator Name" aria-describedby="sizing-addon1" value="" />
+										</p>
+										<p></p>
+										<input id="addevaluator" name="addevaluator" type="button" value="ADD" class="button"/>
+										<input id="delevaluator" name="delevaluator" type="button" value="DELETE" class="button"/>
+									</form>
+									</div>
+									<p id="response" class="lead text-center"></p>
+								</section>
+
+						</div>
+					</div>
+
+			<!-- Sidebar -->
+				<div id="sidebar">
+					<div id="inner1" class="inner"></div>
+				</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script>
+				$(document).ready(function(){
+					var evaluatorDoc;
+					var evaluators;
+					
+					$.getJSON('/getEvaluators', function(data){
+						$.each(data.rows, function( key, obj ) {
+							evaluatorDoc = obj.doc;
+							evaluators = evaluatorDoc.datavalue;
+							$( "#evaluatorname" ).autocomplete({
+							  source:evaluators,
+							  autoFocus: true ,
+							});
+						});
+					});
+					
+					$("#addevaluator").click(function(){
+						var existFlag=false;
+						var newEvaluator = $("#evaluatorname").val();
+						if(newEvaluator != '' && jQuery.inArray(newEvaluator, evaluators) !== -1) {
+							existFlag = true;
+						}
+						if (!existFlag) {
+							evaluators.push(newEvaluator);
+							evaluatorDoc.datavalue = evaluators;
+							
+							$.ajax({
+								url: '/saveadmin',
+								// dataType: "jsonp",
+								data: evaluatorDoc,
+								type: 'POST',
+								success: function (data) {
+									var ret = jQuery.parseJSON(data);
+									window.location.replace("success.html");
+								},
+								error: function (xhr, status, error) {
+									var ret = jQuery.parseJSON(data);
+									window.location.replace("failure.html");
+								},
+							});
+						} else {
+							alert('Evaluator Already exists');
+						}
+					});
+					
+					$("#delevaluator").click(function(){
+						var existFlag=false;
+						var oldEvaluator = $("#evaluatorname").val();
+						if(oldEvaluator != '' && jQuery.inArray(oldEvaluator, evaluators) !== -1) {
+							existFlag = true;
+						}
+						if (existFlag) {
+							var index = evaluators.indexOf(oldEvaluator);
+							if (index > -1) {
+								evaluators.splice(index, 1);
+							}
+							evaluatorDoc.datavalue = evaluators;
+							
+							$.ajax({
+								url: '/saveadmin',
+								// dataType: "jsonp",
+								data: evaluatorDoc,
+								type: 'POST',
+								success: function (data) {
+									var ret = jQuery.parseJSON(data);
+									window.location.replace("success.html");
+								},
+								error: function (xhr, status, error) {
+									var ret = jQuery.parseJSON(data);
+									window.location.replace("failure.html");
+								},
+							});
+						} else {
+							alert('Evaluator not registered');
+						}
+					});
+					
+				});
+			</script>
+	</body>
+</html>
