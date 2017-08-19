@@ -117,7 +117,7 @@ exports.savedata = function(req, res) {
 			console.log({err:err});
 			res.json('{"failure" : "Error occured", "status" : 500}');
 		}
-		res.json('{"success" : "Updated Successfully", "status" : 200}');
+		res.json('{"success" : "Updated Successfully", "status" : 200, "id": "' + doc._id + '"}');
 	});
   }
 };
@@ -157,7 +157,7 @@ function update(req, res) {
 					console.log({err:err});
 					res.json('{"failure" : "Error occured", "status" : 500}');
 				}
-				res.json('{"success" : "Updated Successfully", "status" : 200}');
+				res.json('{"success" : "Updated Successfully", "status" : 200, "id": "' + doc._id + '"}');
 			});
 		});
 	} else {

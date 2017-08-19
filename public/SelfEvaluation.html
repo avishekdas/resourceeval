@@ -53,7 +53,7 @@
 										</p>
 										<p></p>
 										<p class="lead required-field">What is your IBM email id?
-										<input id="email" name="email" type="email" pattern="[\w.%+-]+@ibm\.com"
+										<input id="email" name="email" type="email" pattern="^[a-zA-Z0-9_.+-]+@([a-z]{2})\.(ibm)\.com$"
 											class="form-control" placeholder="Email Address" aria-describedby="sizing-addon1" value="" required />
 										</p>
 										<p></p>
@@ -250,7 +250,8 @@
 								type: 'POST',
 								success: function (data) {
 									var ret = jQuery.parseJSON(data);
-									window.location.replace("success.html");
+									var url = 'ViewProfile.html?id=' + ret.id;
+									window.location.replace(url);
 								},
 								error: function (xhr, status, error) {
 									window.location.replace("failure.html");

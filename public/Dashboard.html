@@ -69,18 +69,27 @@
 				   document.getElementById("main_table").innerHTML = "";
 				   
 				   $.getJSON('/getresources', function(result){
-						var th = '<th>Resource Name</th><th>Employee Number</th><th>IBM Email id</th><th>Technologies</th>';
+						var th = '<th>Resource Name</th><th></th><th>Employee Number</th><th>IBM Email id</th><th>Technologies</th>';
 						$('#main_table').append(th);
 						var tr;
 						$.each(result, function( key, data ) {
 							tr = $('<tr/>');
-							var url = 'EvaluateResource.html?id=' + data._id;
+							var url = 'ViewProfile.html?id=' + data._id;
 							var link = document.createElement("a");
 							var column = $('<td></td>')
 							link.href = url;
 							link.innerHTML = data.resourcename;
 							column.append(link);
 							tr.append(column);
+							
+							var editurl = 'EvaluateResource.html?id=' + data._id;
+							var editlink = document.createElement("a");
+							var editcolumn = $('<td></td>')
+							editlink.href = editurl;
+							editlink.className = "fa fa-pencil";
+							editcolumn.append(editlink);
+							tr.append(editcolumn);
+							
 							tr.append("<td>" + data.ibmid + "</td>");
 							tr.append("<td>" + data.email + "</td>");
 							
@@ -168,19 +177,28 @@
 						$.getJSON('/searchbyresourcename?resourcename='+$('#resourcename').val(), function(result){
 								$( "#main_table" ).prop('hidden', false);
 								document.getElementById("main_table").innerHTML = "";
-								var th = '<th>Resource Name</th><th>Employee Number</th><th>IBM Email id</th><th>Technologies</th>';
+								var th = '<th>Resource Name</th><th></th><th>Employee Number</th><th>IBM Email id</th><th>Technologies</th>';
 								$('#main_table').append(th);
 								var tr;
 								$.each(result.rows, function( key, obj ) {
 									var data = obj.doc;
 									tr = $('<tr/>');
-									var url = 'EvaluateResource.html?id=' + data._id;
+									var url = 'ViewProfile.html?id=' + data._id;
 									var link = document.createElement("a");
 									var column = $('<td></td>')
 									link.href = url;
 									link.innerHTML = data.resourcename;
 									column.append(link);
 									tr.append(column);
+									
+									var editurl = 'EvaluateResource.html?id=' + data._id;
+									var editlink = document.createElement("a");
+									var editcolumn = $('<td></td>')
+									editlink.href = editurl;
+									editlink.className = "fa fa-pencil";
+									editcolumn.append(editlink);
+									tr.append(editcolumn);
+									
 									tr.append("<td>" + data.ibmid + "</td>");
 									tr.append("<td>" + data.email + "</td>");
 									

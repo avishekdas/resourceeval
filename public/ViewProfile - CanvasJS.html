@@ -14,6 +14,7 @@
 		<script src="assets/js/util.js"></script>
 		<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
 		<script src="assets/js/main.js"></script>
+		<script type="text/javascript" src="assets/js/canvasjs.min.js"></script>
 		<script> 
 		$(function(){
 		  $("#header").load("header.html"); 
@@ -56,15 +57,15 @@
 										</p>
 										<p></p>
 										<p class="lead">Job Role Skill Set
-										<select id="jobrole"></select>
+										<input id="jobrole" name="jobrole" type="text" class="form-control" placeholder="JRSS" aria-describedby="sizing-addon1" value="" />
 										</p>
 										<p></p>
 										<p class="lead">Methodology followed
-										<select id="methodology"></select>
+										<input id="methodology" name="methodology" type="text" class="form-control" placeholder="Methodology" aria-describedby="sizing-addon1" value="" />
 										</p>
 										<p></p>
 										<p class="lead">Industry field
-										<div id="industry"></div>
+										<input id="industry" name="industry" type="text" class="form-control" placeholder="Industry" aria-describedby="sizing-addon1" value="" />
 										</p>
 										<p></p>
 										<p class="lead">Technology<br />
@@ -85,9 +86,8 @@
 												</tbody>
 											</table>
 										<p></p>
-										<input id="save" name="save" type="button" value="SAVE" class="button"/>
-										
 									</form>
+									<div id="chartContainer" style="height: 300px; width: 100%;"></div>
 									</div>
 									<p id="response" class="lead text-center"></p>
 								</section>
@@ -108,48 +108,41 @@
 					var old_jsonObj = {};
 					var id = getUrlVars()["id"];
 					if(id != "") {
-						$.getJSON('/getEvaluators', function(data){
+						$.getJSON('/getRatings', function(data){
+							var optionstr = '<select id="rating" class="form-control" style="display: inline;width: 20%;margin-right: 5%;">';
 							$.each(data.rows, function( key, obj ) {
-								var s = $('#evaluatorno');
-								var evaluatorDoc = obj.doc;
-								var evaluators = evaluatorDoc.datavalue;
-								for(var val in evaluators) {
-									$('<option />', {value: evaluators[val], text: evaluators[val]}).appendTo(s);
+								var ratingDoc = obj.doc;
+								var ratings = ratingDoc.datavalue;
+								for(var val in ratings) {
+									optionstr += '<option value="' + ratings[val] + '">' + ratings[val] + '</option>';
 								}
 							});
+							optionstr += '</select>';
 							
-							$.getJSON('/getRatings', function(data){
-								var optionstr = '<select id="rating" class="form-control" style="display: inline;width: 20%;margin-right: 5%;">';
-								$.each(data.rows, function( key, obj ) {
-									var ratingDoc = obj.doc;
-									var ratings = ratingDoc.datavalue;
-									for(var val in ratings) {
-										optionstr += '<option value="' + ratings[val] + '">' + ratings[val] + '</option>';
-									}
-								});
-								optionstr += '</select>';
+							var url = 'getresourcedlts?id=' + id;
+							$.getJSON(url, function(result){
+								old_jsonObj = result;
+								$("#id").val(result._id);
+								$( "#ibmid" ).val(result.ibmid);
+								$( "#resourcename" ).val(result.resourcename);
+								$( "#email" ).val(result.email);
+								$( "#jobrole" ).val(result.jobrole);
+								$( "#methodology" ).val(result.methodology);
+								$( "#industry" ).val(result.industry);
 								
-								var url = 'getresourcedlts?id=' + id;
-								$.getJSON(url, function(result){
-									old_jsonObj = result;
-									$("#id").val(result._id);
-									$( "#ibmid" ).val(result.ibmid);
-									$( "#resourcename" ).val(result.resourcename);
-									$( "#email" ).val(result.email);
-									
-									$.each(result.technologies, function(key, val) {
-									  var me = this;
-									  var tech = me.technology;
-									  var selfrating = me.selfrating;
-									  var row = "<tr><td>" + tech + "</td><td>" + selfrating + "</td><td>";
-									  row += optionstr;
-									  row += "</td></tr>";
-									  $("table tbody").append(row);
-									});
-									
+								$.each(result.technologies, function(key, val) {
+								  var me = this;
+								  var tech = me.technology;
+								  var selfrating = me.selfrating;
+								  var row = "<tr><td>" + tech + "</td><td>" + selfrating + "</td><td>";
+								  row += optionstr;
+								  row += "</td></tr>";
+								  $("table tbody").append(row);
 								});
+								
 							});
 						});
+
 						$("#save").click(function(){
 							var jsonObj = {};
 							var techarr = [];
@@ -210,6 +203,47 @@
 						vars[hash[0]] = hash[1];
 					}
 					return vars;
+				}
+			</script>
+			<script type="text/javascript">
+			  window.onload = function () {
+				var chart = new CanvasJS.Chart("chartContainer",
+				{
+				  title:{
+					text: "Skill Map"
+				  },
+				  data: [
+				  {
+					type: "bar",
+					dataPoints: [
+					{ y: 120, label: "Spring"},
+					{ y: 201, label: "J2EE"},
+					{ y: 202, label: "Weblogic"},
+					{ y: 236, label: "JBOSS"}
+					]
+				  },
+				  {
+					type: "bar",
+					dataPoints: [
+					{ y: 166, label: "Spring"},
+					{ y: 144, label: "J2EE"},
+					{ y: 223, label: "Weblogic"},
+					{ y: 272, label: "JBOSS"}
+					]
+				  },
+				  {
+					type: "bar",
+					dataPoints: [
+					{ y: 185, label: "Spring"},
+					{ y: 0, label: "J2EE"},
+					{ y: 246, label: "Weblogic"},
+					{ y: 272, label: "JBOSS"}
+					]
+				  }
+				  ]
+				});
+
+				chart.render();
 				}
 			</script>
 	</body>
