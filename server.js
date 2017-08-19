@@ -39,6 +39,15 @@ router.route('/getRatings')
 router.route('/getEvaluators')
   .get(adminController.getEvaluators);
   
+router.route('/getjobrole')
+  .get(adminController.getjobrole);
+  
+router.route('/getmethodology')
+  .get(adminController.getmethodology);
+  
+router.route('/getindustry')
+  .get(adminController.getindustry);
+  
 router.route('/saveadmin')
   .post(adminController.saveadmin);
   

@@ -68,6 +68,36 @@ exports.getEvaluators = function(req, res) {
 	});
 };
 
+exports.getjobrole = function(req, res) {
+	var query = 'datatype:jobrole';
+	admindb.search('attributes', 'by_name_value', {include_docs:true, q:query}, function(err, result) {
+	  if (err) {
+		res.json({err:err});
+	  }
+	  res.send(JSON.stringify(result));
+	});
+};
+
+exports.getmethodology = function(req, res) {
+	var query = 'datatype:methodology';
+	admindb.search('attributes', 'by_name_value', {include_docs:true, q:query}, function(err, result) {
+	  if (err) {
+		res.json({err:err});
+	  }
+	  res.send(JSON.stringify(result));
+	});
+};
+
+exports.getindustry = function(req, res) {
+	var query = 'datatype:industry';
+	admindb.search('attributes', 'by_name_value', {include_docs:true, q:query}, function(err, result) {
+	  if (err) {
+		res.json({err:err});
+	  }
+	  res.send(JSON.stringify(result));
+	});
+};
+
 //app.post('/saveadmin', function(req, res) {
 exports.saveadmin = function(req, res) {
   var string = JSON.stringify(req.body);

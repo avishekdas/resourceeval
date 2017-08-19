@@ -29,6 +29,11 @@
 	ol, ul {
 		list-style: none;
 	}
+	
+	p.required-field::before { 
+		content: "* ";
+		color: red;
+	}
 
 	blockquote, q {
 		quotes: none;

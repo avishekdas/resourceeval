@@ -43,16 +43,30 @@
 									<div id="nameInput" class="input-group-lg center-block helloInput">
 									<form>
 										<input id="id" name="id" type="hidden" name="id" />
-										<p class="lead">What is Employee Number? 
-										<input id="ibmid" name="ibmid" type="text" class="form-control" placeholder="IBM Id" aria-describedby="sizing-addon1" value="" />
+										<input type="submit" style="display:none;"/>
+										<p class="lead required-field">What is Employee Number? 
+										<input id="ibmid" name="ibmid" type="text" class="form-control" placeholder="IBM Id" aria-describedby="sizing-addon1" value="" required />
 										</p>
 										<p></p>
-										<p class="lead">What is your Name?
-										<input id="resourcename" name="resourcename" type="text" class="form-control" placeholder="Name" aria-describedby="sizing-addon1" value="" />
+										<p class="lead required-field">What is your Name?
+										<input id="resourcename" name="resourcename" type="text" class="form-control" placeholder="Name" aria-describedby="sizing-addon1" value="" required />
 										</p>
 										<p></p>
-										<p class="lead">What is your IBM email id?
-										<input id="email" name="email" type="text" class="form-control" placeholder="Email Address" aria-describedby="sizing-addon1" value="" />
+										<p class="lead required-field">What is your IBM email id?
+										<input id="email" name="email" type="email" pattern="[\w.%+-]+@ibm\.com"
+											class="form-control" placeholder="Email Address" aria-describedby="sizing-addon1" value="" required />
+										</p>
+										<p></p>
+										<p class="lead">What is your Job Role Skill Set?
+										<select id="jobrole"></select>
+										</p>
+										<p></p>
+										<p class="lead">What Methodology do you follow?
+										<select id="methodology"></select>
+										</p>
+										<p></p>
+										<p class="lead">Which Industry field you belong to?
+										<div id="industry"></div>
 										</p>
 										<p></p>
 										<p class="lead">Choose Technology<br />
@@ -93,45 +107,91 @@
 		<!-- Scripts -->
 			<script>
 				$(document).ready(function(){
-					$.getJSON('/getskills', function(data){
-						$.each(data.rows, function( key, obj ) {
-							var s = $('<select id="tech" class="form-control" style="display: inline;width: 40%;margin-right: 5%;"/>');
-							var skillDoc = obj.doc;
-							var skills = skillDoc.datavalue;
-							for(var val in skills) {
-								$('<option />', {value: skills[val], text: skills[val]}).appendTo(s);
-							}
-							s.appendTo('#techcombo');
-						});
-						
-						$.getJSON('/getRatings', function(data){
-							$.each(data.rows, function( key, obj ) {
-								var s = $('<select id="rating" class="form-control" style="display: inline;width: 20%;margin-right: 5%;"/>');
-								var ratingDoc = obj.doc;
-								var ratings = ratingDoc.datavalue;
-								for(var val in ratings) {
-									$('<option />', {value: ratings[val], text: ratings[val]}).appendTo(s);
+				
+					$.getJSON('/getindustry', function(industrydata){
+						if(industrydata.rows && industrydata.rows !== ""){
+							$.each(industrydata.rows, function( key, obj ) {
+								var industryDoc = obj.doc;
+								var industries = industryDoc.datavalue;
+								var ul = "<ul class='checkbox-grid'></ul>";
+								for(var val in industries) {
+									var container = $('#industry');
+									$('<input />', { type: 'checkbox', id: 'industry' + val, value: industries[val] }).appendTo(container);
+									$('<label />', { 'for': 'industry' + val, text: industries[val] }).appendTo(container);
 								}
-								s.appendTo('#techcombo');
 							});
-							
-							var addlink = $('<a id="add_button" href="#" class="icon fa-plus"><span style="display: inline;width: 20%;margin-left: 5%;" class="label"></span></a>');
-							addlink.appendTo('#techcombo');
-							var minulink = $('<a id="delete_button" href="#" class="icon fa-minus"><span style="display: inline;width: 20%;margin-left: 5%;" class="label"></span></a>');
-							minulink.appendTo('#techcombo');
-							$("#add_button").click(function(){
-								var tech = $("#tech").val();
-								var rating = $("#rating").val();
-								var markup = "<tr><td><input type='checkbox' style='opacity:1;' id='record' name='record' class='form-control' aria-describedby='sizing-addon1' /></td><td>" + tech + "</td><td>" + rating + "</td></tr>";
-								$("table tbody").append(markup);
-							});
-							
-							// Find and remove selected table rows
-							$("#delete_button").click(function(){
-								$("table tbody").find('input[name="record"]').each(function(){
-									if($(this).is(":checked")){
-										$(this).parents("tr").remove();
+						}
+					
+						$.getJSON('/getmethodology', function(methoddata){
+							if(methoddata.rows && methoddata.rows !== ""){
+								$.each(methoddata.rows, function( key, obj ) {
+									var s = $('#methodology');
+									var methodologyDoc = obj.doc;
+									var methodologies = methodologyDoc.datavalue;
+									for(var val in methodologies) {
+										$('<option />', {value: methodologies[val], text: methodologies[val]}).appendTo(s);
 									}
+								});
+							}
+							
+							$.getJSON('/getjobrole', function(jobdata){
+								if(jobdata.rows && jobdata.rows !== ""){
+									$.each(jobdata.rows, function( key, obj ) {
+										var s = $('#jobrole');
+										var jobroleDoc = obj.doc;
+										var jobroles = jobroleDoc.datavalue;
+										for(var val in jobroles) {
+											$('<option />', {value: jobroles[val], text: jobroles[val]}).appendTo(s);
+										}
+									});
+								}
+							
+								$.getJSON('/getskills', function(skilldata){
+									if(skilldata.rows && skilldata.rows !== ""){
+										$.each(skilldata.rows, function( key, obj ) {
+											var s = $('<select id="tech" class="form-control" style="display: inline;width: 40%;margin-right: 5%;"/>');
+											var skillDoc = obj.doc;
+											var skills = skillDoc.datavalue;
+											for(var val in skills) {
+												$('<option />', {value: skills[val], text: skills[val]}).appendTo(s);
+											}
+											s.appendTo('#techcombo');
+										});
+									}
+									
+									$.getJSON('/getRatings', function(ratingdata){
+										if(ratingdata.rows && ratingdata.rows !== ""){
+											$.each(ratingdata.rows, function( key, obj ) {
+												var s = $('<select id="rating" class="form-control" style="display: inline;width: 20%;margin-right: 5%;"/>');
+												var ratingDoc = obj.doc;
+												var ratings = ratingDoc.datavalue;
+												for(var val in ratings) {
+													$('<option />', {value: ratings[val], text: ratings[val]}).appendTo(s);
+												}
+												s.appendTo('#techcombo');
+											});
+										}
+										
+										var addlink = $('<a id="add_button" href="#" class="icon fa-plus"><span style="display: inline;width: 20%;margin-left: 5%;" class="label"></span></a>');
+										addlink.appendTo('#techcombo');
+										var minulink = $('<a id="delete_button" href="#" class="icon fa-minus"><span style="display: inline;width: 20%;margin-left: 5%;" class="label"></span></a>');
+										minulink.appendTo('#techcombo');
+										$("#add_button").click(function(){
+											var tech = $("#tech").val();
+											var rating = $("#rating").val();
+											var markup = "<tr><td><input type='checkbox' style='opacity:1;' id='record' name='record' class='form-control' aria-describedby='sizing-addon1' /></td><td>" + tech + "</td><td>" + rating + "</td></tr>";
+											$("table tbody").append(markup);
+										});
+										
+										// Find and remove selected table rows
+										$("#delete_button").click(function(){
+											$("table tbody").find('input[name="record"]').each(function(){
+												if($(this).is(":checked")){
+													$(this).parents("tr").remove();
+												}
+											});
+										});
+									});
 								});
 							});
 						});
@@ -141,37 +201,46 @@
 						var jsonObj = {};
 						var techarr = [];
 						
-						var table = $("table tbody");
-						table.find('tr').each(function (i) {
-							var $tds = $(this).find('td');
-							var tech = {};
-							tech.technology = $tds.eq(1).text();                             
-							tech.selfrating = $tds.eq(2).text();
-							tech.eval1rating = "";
-							tech.eval2rating = "";
-							tech.eval3rating = "";
-							techarr.push(tech);
-						});
+						if (!$('form')[0].checkValidity()) {
+							$('form').find('input[type="submit"]').click();
+							return false;
+						}
 						
-						jsonObj.ibmid = $("#ibmid").val();
-						jsonObj.resourcename = $("#resourcename").val();
-						jsonObj.email = $("#email").val();
-						jsonObj.technologies = techarr;
+						if($("#ibmid").val() && $("#ibmid").val() !== "" && $("#resourcename").val() 
+							&& $("#resourcename").val() !== "" && $("#email").val() && $("#email").val() !== "") {
 						
-						$.ajax({
-							url: '/savedata',
-							// dataType: "jsonp",
-							data: jsonObj,
-							type: 'POST',
-							success: function (data) {
-								var ret = jQuery.parseJSON(data);
-								window.location.replace("success.html");
-							},
-							error: function (xhr, status, error) {
-								var ret = jQuery.parseJSON(data);
-								window.location.replace("failure.html");
-							},
-						});
+							var table = $("table tbody");
+							table.find('tr').each(function (i) {
+								var $tds = $(this).find('td');
+								var tech = {};
+								tech.technology = $tds.eq(1).text();                             
+								tech.selfrating = $tds.eq(2).text();
+								tech.eval1rating = "";
+								tech.eval2rating = "";
+								tech.eval3rating = "";
+								techarr.push(tech);
+							});
+							
+							jsonObj.ibmid = $("#ibmid").val();
+							jsonObj.resourcename = $("#resourcename").val();
+							jsonObj.email = $("#email").val();
+							jsonObj.technologies = techarr;
+							
+							$.ajax({
+								url: '/savedata',
+								// dataType: "jsonp",
+								data: jsonObj,
+								type: 'POST',
+								success: function (data) {
+									var ret = jQuery.parseJSON(data);
+									window.location.replace("success.html");
+								},
+								error: function (xhr, status, error) {
+									var ret = jQuery.parseJSON(data);
+									window.location.replace("failure.html");
+								},
+							});
+						}
 					});
 					
 				});

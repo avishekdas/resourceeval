@@ -87,19 +87,21 @@
 							var popup = '<a data-fancybox data-src="#hidden-content-' + key + '" href="javascript:;" class="button">Technologies</a>';
 							popup += '<div style="display: none;" id="hidden-content-' + key + '"><table><th>Technologies</th><th>Self Rating</th><th>Eval1 Rating</th><th>Eval2 Rating</th><th>Eval3 Rating</th>';
 							
-							$.each(data.technologies, function( key, tech ) {
-								var row = '';
-								row += '<tr>';
-								
-								row += "<td>" + tech.technology + "</td>";
-								row += "<td>" + tech.selfrating + "</td>";
-								row += "<td>" + tech.eval1rating + "</td>";
-								row += "<td>" + tech.eval2rating + "</td>";
-								row += "<td>" + tech.eval3rating + "</td>";
-								
-								row += '<tr>';
-								popup += row;
-							});
+							if(data.technologies && data.technologies !== "") {
+								$.each(data.technologies, function( key, tech ) {
+									var row = '';
+									row += '<tr>';
+									
+									row += "<td>" + tech.technology + "</td>";
+									row += "<td>" + tech.selfrating + "</td>";
+									row += "<td>" + tech.eval1rating + "</td>";
+									row += "<td>" + tech.eval2rating + "</td>";
+									row += "<td>" + tech.eval3rating + "</td>";
+									
+									row += '<tr>';
+									popup += row;
+								});
+							}
 							popup += '</table></div>';
 							tr.append(popup);
 							
@@ -185,19 +187,21 @@
 									var popup = '<a data-fancybox data-src="#hidden-content-' + key + '" href="javascript:;" class="button">Technologies</a>';
 									popup += '<div style="display: none;" id="hidden-content-' + key + '"><table><th>Technologies</th><th>Self Rating</th><th>Eval1 Rating</th><th>Eval2 Rating</th><th>Eval3 Rating</th>';
 									
-									$.each(data.technologies, function( key, tech ) {
-										var row = '';
-										row += '<tr>';
-										
-										row += "<td>" + tech.technology + "</td>";
-										row += "<td>" + tech.selfrating + "</td>";
-										row += "<td>" + tech.eval1rating + "</td>";
-										row += "<td>" + tech.eval2rating + "</td>";
-										row += "<td>" + tech.eval3rating + "</td>";
-										
-										row += '<tr>';
-										popup += row;
-									});
+									if(data.technologies && data.technologies !== "") {
+										$.each(data.technologies, function( key, tech ) {
+											var row = '';
+											row += '<tr>';
+											
+											row += "<td>" + tech.technology + "</td>";
+											row += "<td>" + tech.selfrating + "</td>";
+											row += "<td>" + tech.eval1rating + "</td>";
+											row += "<td>" + tech.eval2rating + "</td>";
+											row += "<td>" + tech.eval3rating + "</td>";
+											
+											row += '<tr>';
+											popup += row;
+										});
+									}
 									popup += '</table></div>';
 									tr.append(popup);
 									
