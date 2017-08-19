@@ -107,12 +107,13 @@
 		<!-- Scripts -->
 			<script>
 				$(document).ready(function(){
+					var industries;
 				
 					$.getJSON('/getindustry', function(industrydata){
 						if(industrydata.rows && industrydata.rows !== ""){
 							$.each(industrydata.rows, function( key, obj ) {
 								var industryDoc = obj.doc;
-								var industries = industryDoc.datavalue;
+								industries = industryDoc.datavalue;
 								var ul = "<ul class='checkbox-grid'></ul>";
 								for(var val in industries) {
 									var container = $('#industry');
@@ -200,6 +201,8 @@
 					$("#save").click(function(){
 						var jsonObj = {};
 						var techarr = [];
+						var industryarr = [];
+						var myArray = [];
 						
 						if (!$('form')[0].checkValidity()) {
 							$('form').find('input[type="submit"]').click();
@@ -213,30 +216,43 @@
 							table.find('tr').each(function (i) {
 								var $tds = $(this).find('td');
 								var tech = {};
-								tech.technology = $tds.eq(1).text();                             
+								tech.technology = $tds.eq(1).text();
 								tech.selfrating = $tds.eq(2).text();
-								tech.eval1rating = "";
-								tech.eval2rating = "";
-								tech.eval3rating = "";
 								techarr.push(tech);
 							});
 							
+							for(var val in industries) {
+								var check=$('input:checkbox[id=industry'+val+']').is(':checked');
+								if(check==true) {
+									myArray[val]=$('input:checkbox[id=industry'+val+']').val();
+									if(myArray[val] !== 'undefined') {
+										industryarr.push(myArray[val]);
+									}
+								}
+							}
+							
+							jsonObj._id = $("#email").val();
 							jsonObj.ibmid = $("#ibmid").val();
 							jsonObj.resourcename = $("#resourcename").val();
 							jsonObj.email = $("#email").val();
+							jsonObj.jobrole = $("#jobrole").val();
+							jsonObj.methodology = $("#methodology").val();
+							jsonObj.industry = industryarr;
 							jsonObj.technologies = techarr;
+							
+							var jsondata = "";
+							jsondata = JSON.stringify(jsonObj);
 							
 							$.ajax({
 								url: '/savedata',
-								// dataType: "jsonp",
-								data: jsonObj,
+								contentType : "application/json",
+								data: jsondata,
 								type: 'POST',
 								success: function (data) {
 									var ret = jQuery.parseJSON(data);
 									window.location.replace("success.html");
 								},
 								error: function (xhr, status, error) {
-									var ret = jQuery.parseJSON(data);
 									window.location.replace("failure.html");
 								},
 							});

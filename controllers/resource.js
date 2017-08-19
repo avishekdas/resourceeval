@@ -100,25 +100,25 @@ exports.savedata = function(req, res) {
   var doc = JSON.parse(string);
   var id = req.query._id || req.query.id || req.body._id || req.body.id || "";
   if (id) {
-		doc._id = id;
-		update(req, res);
+	doc._id = id;
+	update(req, res);
   } else {
-		for (var key in req.body) {
-			if (key === "_id" || key === "id") continue;
-			doc[key] = req.body[key]
+	for (var key in req.body) {
+		if (key === "_id" || key === "id") continue;
+		doc[key] = req.body[key]
+	}
+	for (var key in req.query) {
+		if (key === "_id" || key === "id") continue;
+		doc[key] = req.query[key]
+	}
+	
+	db.insert(doc, function(err, data) {
+		if (err) {
+			console.log({err:err});
+			res.json('{"failure" : "Error occured", "status" : 500}');
 		}
-		for (var key in req.query) {
-			if (key === "_id" || key === "id") continue;
-			doc[key] = req.query[key]
-		}
-		
-		db.insert(doc, function(err, data) {
-			if (err) {
-				console.log({err:err});
-				res.end('{\"msg\": \"ERROR\"}');
-			}
-			res.end('{\"msg\": \"OK\"}');
-		});
+		res.json('{"success" : "Updated Successfully", "status" : 200}');
+	});
   }
 };
 
@@ -129,13 +129,13 @@ function update(req, res) {
 		db.get(id, function(err, data) {
 			if (err) {
 				if (err.statusCode == 404) {
-					isNew == true;
+					isNew = true;
 				} else {
 					res.json({err:err});
 					return;
 				}
 			}
-
+			
 			var old_doc = {};
 			var doc = {};
 			if (isNew) {
@@ -155,14 +155,14 @@ function update(req, res) {
 			db.insert(doc, function(err, data) {
 				if (err) {
 					console.log({err:err});
-					res.end('{\"msg\": \"ERROR\"}');
+					res.json('{"failure" : "Error occured", "status" : 500}');
 				}
-				res.end('{\"msg\": \"OK\"}');
+				res.json('{"success" : "Updated Successfully", "status" : 200}');
 			});
 		});
 	} else {
 		console.log({err:err});
-		res.end('{\"msg\": \"ERROR\"}');
+		res.json('{"failure" : "Error occured", "status" : 500}');
 	}
 };
 
