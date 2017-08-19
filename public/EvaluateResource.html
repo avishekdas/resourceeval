@@ -56,15 +56,15 @@
 										</p>
 										<p></p>
 										<p class="lead">Job Role Skill Set
-										<select id="jobrole"></select>
+										<input id="jobrole" name="jobrole" type="text" class="form-control" placeholder="JRSS" aria-describedby="sizing-addon1" value="" />
 										</p>
 										<p></p>
 										<p class="lead">Methodology followed
-										<select id="methodology"></select>
+										<input id="methodology" name="methodology" type="text" class="form-control" placeholder="Methodology" aria-describedby="sizing-addon1" value="" />
 										</p>
 										<p></p>
 										<p class="lead">Industry field
-										<div id="industry"></div>
+										<input id="industry" name="industry" type="text" class="form-control" placeholder="Industry" aria-describedby="sizing-addon1" value="" />
 										</p>
 										<p></p>
 										<p class="lead">Technology<br />
@@ -88,6 +88,10 @@
 										<input id="save" name="save" type="button" value="SAVE" class="button"/>
 										
 									</form>
+									<div>
+										<h2>Evaluation History</h2>
+										<canvas id="canvas" height="400" width="650"></canvas>
+									</div>
 									</div>
 									<p id="response" class="lead text-center"></p>
 								</section>
@@ -107,16 +111,42 @@
 				$(document).ready(function(){
 					var old_jsonObj = {};
 					var id = getUrlVars()["id"];
-					if(id != "") {
-						$.getJSON('/getEvaluators', function(data){
-							$.each(data.rows, function( key, obj ) {
-								var s = $('#evaluatorno');
-								var evaluatorDoc = obj.doc;
-								var evaluators = evaluatorDoc.datavalue;
-								for(var val in evaluators) {
-									$('<option />', {value: evaluators[val], text: evaluators[val]}).appendTo(s);
-								}
-							});
+					if(id && id !== "") {
+						var url = 'getresourcedlts?id=' + id;
+						$.getJSON(url, function(result){
+							old_jsonObj = result;
+							$("#id").val(result._id);
+							$( "#ibmid" ).val(result.ibmid);
+							$( "#resourcename" ).val(result.resourcename);
+							$( "#email" ).val(result.email);
+							$( "#jobrole" ).val(result.jobrole);
+							$( "#methodology" ).val(result.methodology);
+							$( "#industry" ).val(result.industry);
+							
+							// values of each item on the graph
+							var itemName = [];
+							var itemValue = [];
+							
+							if(result.technologies && result.technologies !== ""){
+								$.each(result.technologies, function(key, val) {
+									var me = this;
+									if(me.evaluator && me.evaluator !== ""){
+										var counter = 1;
+										$.each(me.evaluator, function(key1, val1) {
+											var evalind = this;
+											if(Number(evalind.rating) >= 0){
+												itemName.push(me.technology + '-' + counter++)
+												itemValue.push(evalind.rating);
+											} else if(evalind.rating && evalind.rating == 'SME') {
+												itemName.push(me.technology + '-' + counter++)
+												itemValue.push(4);
+											}
+										});
+									}
+								});
+							}
+									
+							init(itemName, itemValue);								
 							
 							$.getJSON('/getRatings', function(data){
 								var optionstr = '<select id="rating" class="form-control" style="display: inline;width: 20%;margin-right: 5%;">';
@@ -128,15 +158,8 @@
 									}
 								});
 								optionstr += '</select>';
-								
-								var url = 'getresourcedlts?id=' + id;
-								$.getJSON(url, function(result){
-									old_jsonObj = result;
-									$("#id").val(result._id);
-									$( "#ibmid" ).val(result.ibmid);
-									$( "#resourcename" ).val(result.resourcename);
-									$( "#email" ).val(result.email);
-									
+							
+								if(result.technologies && result.technologies !== ""){
 									$.each(result.technologies, function(key, val) {
 									  var me = this;
 									  var tech = me.technology;
@@ -146,59 +169,92 @@
 									  row += "</td></tr>";
 									  $("table tbody").append(row);
 									});
-									
-								});
+								}
 							});
 						});
 						$("#save").click(function(){
+							var evaluatorname = "hardcode";
 							var jsonObj = {};
-							var techarr = [];
+							//var techarr = [];
+							var evalmap = new Object();
 							var table = $("table tbody");
 							table.find('tr').each(function (i) {
 								var $tds = $(this).find('td');
-								var tech = {};
-								tech.technology = $tds.eq(0).text();                             
-								tech.selfrating = $tds.eq(1).text();
-								if($("#evaluatorno").val() == 'Evaluator1') {
-									tech.eval1rating = $tds.eq(2).find("select").val();
-									tech.eval2rating = old_jsonObj.technologies[i].eval2rating;
-									tech.eval3rating = old_jsonObj.technologies[i].eval3rating;
-								} else if($("#evaluatorno").val() == 'Evaluator2') {
-									tech.eval2rating = $tds.eq(2).find("select").val();
-									tech.eval1rating = old_jsonObj.technologies[i].eval1rating;
-									tech.eval3rating = old_jsonObj.technologies[i].eval3rating;
-								} else if($("#evaluatorno").val() == 'Evaluator3') {
-									tech.eval3rating = $tds.eq(2).find("select").val();
-									tech.eval1rating = old_jsonObj.technologies[i].eval1rating;
-									tech.eval2rating = old_jsonObj.technologies[i].eval2rating;
-								}
-								techarr.push(tech);
+								var technology;
+								technology = $tds.eq(0).text();                             
+								//tech.selfrating = $tds.eq(1).text();
+								//techarr.push(tech);
+								evalmap[technology] = $tds.eq(2).find("select").val();
 							});
 							
 							jsonObj._id = $("#id").val();
+							jsonObj._rev = old_jsonObj._rev;
 							jsonObj.ibmid = $("#ibmid").val();
 							jsonObj.resourcename = $("#resourcename").val();
 							jsonObj.email = $("#email").val();
-							jsonObj.technologies = techarr;
+							jsonObj.jobrole = $("#jobrole").val();
+							jsonObj.methodology = $("#methodology").val();
+							jsonObj.industry = old_jsonObj.industry;
+							
+							var newtecharr = [];
+							if(old_jsonObj.technologies && old_jsonObj.technologies !== ""){
+								$.each(old_jsonObj.technologies, function(key, val) {
+									var me = this;
+									var newtech = {};
+									newtech.technology = me.technology;
+									newtech.selfrating = me.selfrating;
+									
+									var found = false;
+									var newevalarr = [];
+									if(me.evaluator && me.evaluator !== ""){
+										$.each(me.evaluator, function(key1, val1) {
+											var evaluator = this;
+											
+											var newevaluator = {};
+											newevaluator.id = evaluator.id;
+											
+											if(evaluator.id == evaluatorname){
+												newevaluator.rating = evalmap[me.technology];
+												found = true;
+											} else {
+												newevaluator.rating = evaluator.rating;
+											}
+											newevalarr.push(newevaluator);
+										});
+									}
+									if(!found) {
+										var newevaluator = {};
+										newevaluator.id = evaluatorname;
+										newevaluator.rating = evalmap[me.technology];
+										newevalarr.push(newevaluator);
+									}
+									
+									newtech.evaluator = newevalarr;
+									newtecharr.push(newtech);
+								});
+							}
+							jsonObj.technologies = newtecharr;
+							
+							var jsondata = "";
+							jsondata = JSON.stringify(jsonObj);
 							
 							$.ajax({
 								url: '/savedata',
-								// dataType: "jsonp",
-								data: jsonObj,
+								contentType : "application/json",
+								data: jsondata,
 								type: 'POST',
 								success: function (data) {
 									var ret = jQuery.parseJSON(data);
-									window.location.replace("success.html");
+									var url = 'ViewProfile.html?id=' + ret.id;
+									window.location.replace(url);
 								},
 								error: function (xhr, status, error) {
-									var ret = jQuery.parseJSON(data);
 									window.location.replace("failure.html");
 								},
 							});
 						});
 					}
 				});
-				
 				function getUrlVars()
 				{
 					var vars = [], hash;
@@ -211,6 +267,82 @@
 					}
 					return vars;
 				}
+			</script>
+			<script type="text/javascript">
+
+			var canvas ;
+			var context ;
+			var Val_Max;
+			var Val_Min;
+			var sections;
+			var xScale;
+			var yScale;
+			var y;
+
+			function init(itemName, itemValue) {
+					// intialize values for each variables
+				sections = itemName.length;
+				Val_Max = 4;
+				var stepSize = 1;
+				var columnSize = 50;
+				var rowSize = 60;
+				var margin = 10;
+				var header = "Scale 1-4";
+					
+				canvas = document.getElementById("canvas");
+				context = canvas.getContext("2d");
+				context.fillStyle = "#000;"
+				
+				yScale = (canvas.height - columnSize - margin) / (Val_Max);
+				xScale = (canvas.width - rowSize) / (sections + 1);
+				
+				context.strokeStyle="#000;"; // background black lines
+				context.beginPath();
+				// column names 
+				context.font = "19 pt Arial;"
+				context.fillText(header, 0,columnSize - margin);
+					// draw lines in the background
+				context.font = "16 pt Helvetica"
+				var count =  0;
+				for (scale=Val_Max;scale>=0;scale = scale - stepSize) {
+					y = columnSize + (yScale * count * stepSize); 
+					context.fillText(scale, margin,y + margin);
+					context.moveTo(rowSize,y)
+					context.lineTo(canvas.width,y)
+					count++;
+				}
+				context.stroke();
+				
+				// print names of each data entry
+				context.font = "20 pt Verdana";
+				context.textBaseline="bottom";
+				for (i=0;i<itemName.length;i++) {
+					computeHeight(itemValue[i]);
+					context.fillText(itemName[i], xScale * (i+1),y - margin);
+				}
+				
+				// shadow for graph's bar lines with color and offset
+			  
+				context.fillStyle="#9933FF;";
+				context.shadowColor = 'rgba(128,128,128, 0.5)';
+			  
+				//shadow offset along X and Y direction 
+				context.shadowOffsetX = 9;
+				context.shadowOffsetY = 3;
+			  
+				// translate to bottom of graph  inorder to match the data 
+				context.translate(0,canvas.height - margin);
+				context.scale(xScale,-1 * yScale);
+			  
+				// draw each graph bars	
+				for (i=0;i<itemName.length;i++) {
+					context.fillRect(i+1, 0, 0.3, itemValue[i]);
+				}
+			}
+
+			function computeHeight(value) {
+				y = canvas.height - value * yScale ;	
+			}
 			</script>
 	</body>
 </html>
